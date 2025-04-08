@@ -26,10 +26,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Build the JAR
+        run: mvn clean package
+
+      - name: Show contents of target (debug)
+        run: ls -lh target
+
       - name: Install Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get install docker-compose
+          sudo apt-get install docker-compose -y
 
       - name: Build Docker images
         run: docker-compose -f docker-compose.yml build

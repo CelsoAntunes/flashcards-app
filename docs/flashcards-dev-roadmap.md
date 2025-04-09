@@ -4,7 +4,7 @@ This roadmap breaks your project into clear **learning phases**, each focused on
 
 ---
 
-### ✅ Phase 0: Foundation (Already Completed)
+### ✅ Phase 0: Foundation (Completed)
 📄 [View details](phase-0-foundation.md)
 - [x] Spring Boot backend + PostgreSQL database setup
 - [x] Dockerize backend and DB using Docker Compose
@@ -87,17 +87,3 @@ This roadmap breaks your project into clear **learning phases**, each focused on
 - [ ] Use `.dockerignore` to clean up builds
 - [ ] Explore multi-stage Docker builds for smaller image sizes
 - [ ] (Optional) Use semantic versioning with Git tags + CI workflows
-
----
-
-## 🧭 Your Next Step:
-Start **Phase 1** by writing a simple **failing test** that targets a core logic component (e.g., card creation or fetching). Build the feature to make the test pass, then refactor.
-
-With each phase, aim to:
-- Write tests first (TDD mindset)
-- Automate everything through CI
-- Keep improving clarity and deployment readiness
-
----
-
-Let me know if you'd like to generate any of the phase detail files or expand on one now!

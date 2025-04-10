@@ -16,15 +16,22 @@ public class FlashcardService {
   }
 
   public Flashcard save(Flashcard flashcard) {
-    if (isValid(flashcard)) {
-      return flashcardRepository.save(flashcard);
-    } else {
+    if (!isValid(flashcard)) {
       throw new IllegalArgumentException("Invalid flashcard");
     }
+    return flashcardRepository.save(flashcard);
   }
 
   public Flashcard findById(Long id) {
     return flashcardRepository.findById(id).orElse(null);
+  }
+
+  public Flashcard createFlashcard(String front, String back) {
+    Flashcard flashcard = new Flashcard(front, back);
+    if (!isValid(flashcard)) {
+      throw new IllegalArgumentException("Invalid flashcard");
+    }
+    return flashcardRepository.save(flashcard);
   }
 
   public boolean isValid(Flashcard flashcard) {

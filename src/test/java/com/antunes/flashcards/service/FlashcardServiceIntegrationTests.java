@@ -2,6 +2,7 @@ package com.antunes.flashcards.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.antunes.flashcards.exception.FlashcardValidationException;
 import com.antunes.flashcards.model.Flashcard;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class FlashcardServiceIntegrationTests {
     Flashcard flashcard = new Flashcard(null, "back");
     Exception exception =
         assertThrows(
-            IllegalArgumentException.class,
+            FlashcardValidationException.class,
             () -> {
               flashcardService.save(flashcard);
             });

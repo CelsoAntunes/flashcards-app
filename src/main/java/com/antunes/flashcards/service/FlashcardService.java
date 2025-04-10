@@ -1,7 +1,9 @@
 package com.antunes.flashcards.service;
 
+import com.antunes.flashcards.exception.FlashcardValidationException;
 import com.antunes.flashcards.model.Flashcard;
 import com.antunes.flashcards.repository.FlashcardRepository;
+import com.antunes.flashcards.validation.FlashcardValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +18,8 @@ public class FlashcardService {
   }
 
   public Flashcard save(Flashcard flashcard) {
-    if (!isValid(flashcard)) {
-      throw new IllegalArgumentException("Invalid flashcard");
+    if (!FlashcardValidator.isValid(flashcard)) {
+      throw new FlashcardValidationException("Invalid flashcard");
     }
     return flashcardRepository.save(flashcard);
   }
@@ -28,16 +30,9 @@ public class FlashcardService {
 
   public Flashcard createFlashcard(String front, String back) {
     Flashcard flashcard = new Flashcard(front, back);
-    if (!isValid(flashcard)) {
-      throw new IllegalArgumentException("Invalid flashcard");
+    if (!FlashcardValidator.isValid(flashcard)) {
+      throw new FlashcardValidationException("Invalid flashcard");
     }
     return flashcardRepository.save(flashcard);
-  }
-
-  public boolean isValid(Flashcard flashcard) {
-    return (flashcard.getFront() != null)
-        && !flashcard.getFront().isBlank()
-        && (flashcard.getBack() != null)
-        && !flashcard.getBack().isBlank();
   }
 }

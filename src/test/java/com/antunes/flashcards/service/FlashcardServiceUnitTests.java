@@ -99,7 +99,7 @@ public class FlashcardServiceUnitTests {
   }
 
   @Nested
-  class createFlashcard {
+  class CreateFlashcard {
     @Test
     void createFlashcardValidInput() {
       when(flashcardRepository.save(any(Flashcard.class)))
@@ -124,6 +124,39 @@ public class FlashcardServiceUnitTests {
           assertThrows(
               FlashcardValidationException.class,
               () -> flashcardService.createFlashcard(front, back));
+      assertEquals("Invalid flashcard", exception.getMessage());
+    }
+  }
+
+  @Nested
+  class UpdateFlashcard {
+    @Test
+    void updateFlashcardValidInput() {
+      when(flashcardRepository.save(any(Flashcard.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+
+      Flashcard existingFlashcard = buildFlashcard("front", "back");
+      assertFlashcardContent(existingFlashcard);
+
+      when(flashcardRepository.updateFlashcard(any(Flashcard.class)), "new front", "new back")
+          .thenAnswer(invocation -> invocation.getArgument(0));
+
+      ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+      verify(flashcardRepository).updateFlashcard(captor.capture());
+
+      Flashcard captured = captor.getValue();
+      assertFlashcardContent(captured);
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+    void updateFlashcardInvalidInput(String front, String back) {
+      Flashcard existingFlashcard = buildFlashcard("front", "back");
+      FlashcardValidationException exception =
+          assertThrows(
+              FlashcardValidationException.class,
+              () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
       assertEquals("Invalid flashcard", exception.getMessage());
     }
   }

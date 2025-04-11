@@ -34,10 +34,10 @@ public class FlashcardServiceIntegrationTests {
         Arguments.of("", ""));
   }
 
-  private void assertFlashcardContent(Flashcard flashcard) {
+  private void assertFlashcardContent(Flashcard flashcard, String front, String back) {
     assertNotNull(flashcard);
-    assertEquals("front", flashcard.getFront());
-    assertEquals("back", flashcard.getBack());
+    assertEquals(front, flashcard.getFront());
+    assertEquals(back, flashcard.getBack());
   }
 
   @Nested
@@ -47,7 +47,7 @@ public class FlashcardServiceIntegrationTests {
       Flashcard flashcard = new Flashcard("front", "back");
       Flashcard savedFlashcard = flashcardService.save(flashcard);
 
-      assertFlashcardContent(savedFlashcard);
+      assertFlashcardContent(savedFlashcard, "front", "back");
     }
 
     @ParameterizedTest
@@ -69,7 +69,7 @@ public class FlashcardServiceIntegrationTests {
       flashcardService.save(flashcard);
       Flashcard retrievedFlashcard = flashcardService.findById(flashcard.getId());
 
-      assertFlashcardContent(retrievedFlashcard);
+      assertFlashcardContent(retrievedFlashcard, "front", "back");
     }
 
     @Test
@@ -85,7 +85,7 @@ public class FlashcardServiceIntegrationTests {
     @Test
     void createFlashcardValidInput() {
       Flashcard createdFlashcard = flashcardService.createFlashcard("front", "back");
-      assertFlashcardContent(createdFlashcard);
+      assertFlashcardContent(createdFlashcard, "front", "back");
     }
 
     @ParameterizedTest
@@ -96,6 +96,30 @@ public class FlashcardServiceIntegrationTests {
           assertThrows(
               FlashcardValidationException.class,
               () -> flashcardService.createFlashcard(front, back));
+      assertNotNull(exception);
+    }
+  }
+
+  @Nested
+  class UpdateFlashcard {
+    @Test
+    void updateFlashcardValidInput() {
+      Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
+      Flashcard updatedFlashcard =
+          flashcardService.updateFlashcard(existingFlashcard, "new front", "new back");
+      assertFlashcardContent(existingFlashcard, "new front", "new back");
+      assertFlashcardContent(updatedFlashcard, "new front", "new back");
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+    void updateFlashcardInvalidInput(String front, String back) {
+      Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
+      Exception exception =
+          assertThrows(
+              FlashcardValidationException.class,
+              () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
       assertNotNull(exception);
     }
   }

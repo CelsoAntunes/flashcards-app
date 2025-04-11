@@ -38,4 +38,13 @@ public class FlashcardService {
     }
     return flashcardRepository.save(flashcard);
   }
+
+  public Flashcard updateFlashcard(Flashcard flashcard, String front, String back) {
+    flashcard.setFront(front);
+    flashcard.setBack(back);
+    if (!FlashcardValidator.isValid(flashcard)) {
+      throw new FlashcardValidationException("Invalid flashcard");
+    }
+    return flashcardRepository.save(flashcard);
+  }
 }

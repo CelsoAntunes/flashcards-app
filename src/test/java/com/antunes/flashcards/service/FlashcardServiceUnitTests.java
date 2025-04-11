@@ -44,10 +44,10 @@ public class FlashcardServiceUnitTests {
     return new Flashcard(front, back);
   }
 
-  private void assertFlashcardContent(Flashcard flashcard) {
+  private void assertFlashcardContent(Flashcard flashcard, String front, String back) {
     assertNotNull(flashcard);
-    assertEquals("front", flashcard.getFront());
-    assertEquals("back", flashcard.getBack());
+    assertEquals(front, flashcard.getFront());
+    assertEquals(back, flashcard.getBack());
   }
 
   @Nested
@@ -59,12 +59,12 @@ public class FlashcardServiceUnitTests {
 
       Flashcard savedFlashcard = flashcardService.save(flashcard);
 
-      assertFlashcardContent(savedFlashcard);
+      assertFlashcardContent(savedFlashcard, "front", "back");
     }
 
     @ParameterizedTest
     @MethodSource(
-        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+        "com.antunes.flashcards.service.FlashcardServiceUnitTests#provideInvalidFlashcardData")
     void saveInvalidInput(String front, String back) {
       Flashcard flashcard = buildFlashcard(front, back);
 
@@ -83,7 +83,7 @@ public class FlashcardServiceUnitTests {
       when(flashcardRepository.findById(flashcard.getId())).thenReturn(Optional.of(flashcard));
       flashcardRepository.save(flashcard);
       Flashcard foundById = flashcardService.findById(flashcard.getId());
-      assertFlashcardContent(foundById);
+      assertFlashcardContent(foundById, "front", "back");
     }
 
     @Test
@@ -99,31 +99,58 @@ public class FlashcardServiceUnitTests {
   }
 
   @Nested
-  class createFlashcard {
+  class CreateFlashcard {
     @Test
     void createFlashcardValidInput() {
       when(flashcardRepository.save(any(Flashcard.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
 
       Flashcard createdFlashcard = flashcardService.createFlashcard("front", "back");
-
-      assertFlashcardContent(createdFlashcard);
-
+      assertFlashcardContent(createdFlashcard, "front", "back");
       ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
       verify(flashcardRepository).save(captor.capture());
-
       Flashcard captured = captor.getValue();
-      assertFlashcardContent(captured);
+      assertFlashcardContent(captured, "front", "back");
     }
 
     @ParameterizedTest
     @MethodSource(
-        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+        "com.antunes.flashcards.service.FlashcardServiceUnitTests#provideInvalidFlashcardData")
     void createFlashcardInvalidInput(String front, String back) {
       FlashcardValidationException exception =
           assertThrows(
               FlashcardValidationException.class,
               () -> flashcardService.createFlashcard(front, back));
+      assertEquals("Invalid flashcard", exception.getMessage());
+    }
+  }
+
+  @Nested
+  class UpdateFlashcard {
+    @Test
+    void updateFlashcardValidInput() {
+      when(flashcardRepository.save(any(Flashcard.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+
+      Flashcard existingFlashcard = buildFlashcard("front", "back");
+      assertNotNull(existingFlashcard);
+      assertFlashcardContent(existingFlashcard, "front", "back");
+
+      Flashcard updatedFlashcard =
+          flashcardService.updateFlashcard(existingFlashcard, "new front", "new back");
+      assertFlashcardContent(updatedFlashcard, "new front", "new back");
+      assertFlashcardContent(existingFlashcard, "new front", "new back");
+    }
+
+    @ParameterizedTest
+    @MethodSource(
+        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+    void updateFlashcardInvalidInput(String front, String back) {
+      Flashcard existingFlashcard = buildFlashcard("front", "back");
+      FlashcardValidationException exception =
+          assertThrows(
+              FlashcardValidationException.class,
+              () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
       assertEquals("Invalid flashcard", exception.getMessage());
     }
   }

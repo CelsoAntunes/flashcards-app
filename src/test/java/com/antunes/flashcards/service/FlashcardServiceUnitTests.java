@@ -140,6 +140,7 @@ public class FlashcardServiceUnitTests {
           flashcardService.updateFlashcard(existingFlashcard, "new front", "new back");
       assertFlashcardContent(updatedFlashcard, "new front", "new back");
       assertFlashcardContent(existingFlashcard, "new front", "new back");
+      verify(flashcardRepository).save(existingFlashcard);
     }
 
     @ParameterizedTest
@@ -152,6 +153,31 @@ public class FlashcardServiceUnitTests {
               FlashcardValidationException.class,
               () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
       assertEquals("Invalid flashcard", exception.getMessage());
+    }
+  }
+
+  @Nested
+  class DeleteFlashcard {
+    @Test
+    void deleteFlashcardExisting() {
+      Flashcard existingFlashcard = buildFlashcard("front", "back");
+      assertNotNull(existingFlashcard);
+      assertFlashcardContent(existingFlashcard, "front", "back");
+      when(flashcardRepository.findById(existingFlashcard.getId()))
+          .thenReturn(Optional.of(existingFlashcard));
+      flashcardService.deleteFlashcard(existingFlashcard);
+      verify(flashcardRepository).delete(existingFlashcard);
+    }
+
+    @Test
+    void deleteFlashcardNonExisting() {
+      Flashcard fakeFlashcard = new Flashcard("front", "back");
+      when(flashcardRepository.findById(fakeFlashcard.getId())).thenReturn(Optional.empty());
+      FlashcardNotFoundException exception =
+          assertThrows(
+              FlashcardNotFoundException.class,
+              () -> flashcardService.deleteFlashcard(fakeFlashcard));
+      assertEquals("Flashcard not found", exception.getMessage());
     }
   }
 }

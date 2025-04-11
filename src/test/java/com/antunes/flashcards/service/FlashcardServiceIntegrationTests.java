@@ -55,9 +55,7 @@ public class FlashcardServiceIntegrationTests {
         "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
     void saveInvalidFlashcard(String front, String back) {
       Flashcard flashcard = new Flashcard(front, back);
-      Exception exception =
-          assertThrows(FlashcardValidationException.class, () -> flashcardService.save(flashcard));
-      assertNotNull(exception);
+      assertThrows(FlashcardValidationException.class, () -> flashcardService.save(flashcard));
     }
   }
 
@@ -74,9 +72,7 @@ public class FlashcardServiceIntegrationTests {
 
     @Test
     void findByIdInvalidId() {
-      Exception exception =
-          assertThrows(FlashcardNotFoundException.class, () -> flashcardService.findById(999L));
-      assertNotNull(exception);
+      assertThrows(FlashcardNotFoundException.class, () -> flashcardService.findById(999L));
     }
   }
 
@@ -92,11 +88,8 @@ public class FlashcardServiceIntegrationTests {
     @MethodSource(
         "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
     void createFlashcardInvalidInput(String front, String back) {
-      Exception exception =
-          assertThrows(
-              FlashcardValidationException.class,
-              () -> flashcardService.createFlashcard(front, back));
-      assertNotNull(exception);
+      assertThrows(
+          FlashcardValidationException.class, () -> flashcardService.createFlashcard(front, back));
     }
   }
 
@@ -116,11 +109,27 @@ public class FlashcardServiceIntegrationTests {
         "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
     void updateFlashcardInvalidInput(String front, String back) {
       Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
-      Exception exception =
-          assertThrows(
-              FlashcardValidationException.class,
-              () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
-      assertNotNull(exception);
+      assertThrows(
+          FlashcardValidationException.class,
+          () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
+    }
+  }
+
+  @Nested
+  class DeleteFlashcard {
+    @Test
+    void deleteFlashcardExisting() {
+      Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
+      Long id = existingFlashcard.getId();
+      flashcardService.deleteFlashcard(existingFlashcard);
+      assertThrows(FlashcardNotFoundException.class, () -> flashcardService.findById(id));
+    }
+
+    @Test
+    void deleteFlashcardNonExisting() {
+      Flashcard fakeFlashcard = new Flashcard("front", "back");
+      assertThrows(
+          FlashcardNotFoundException.class, () -> flashcardService.deleteFlashcard(fakeFlashcard));
     }
   }
 }

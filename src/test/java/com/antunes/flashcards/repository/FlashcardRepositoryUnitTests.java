@@ -22,7 +22,6 @@ public class FlashcardRepositoryUnitTests {
     assertNotNull(savedFlashcard);
     assertEquals("front", flashcard.getFront());
     assertEquals("back", flashcard.getBack());
-
     verify(flashcardRepository, times(1)).save(flashcard);
   }
 }

@@ -1,5 +1,6 @@
 package com.antunes.flashcards.service;
 
+import com.antunes.flashcards.exception.FlashcardNotFoundException;
 import com.antunes.flashcards.exception.FlashcardValidationException;
 import com.antunes.flashcards.model.Flashcard;
 import com.antunes.flashcards.repository.FlashcardRepository;
@@ -25,7 +26,9 @@ public class FlashcardService {
   }
 
   public Flashcard findById(Long id) {
-    return flashcardRepository.findById(id).orElse(null);
+    return flashcardRepository
+        .findById(id)
+        .orElseThrow(() -> new FlashcardNotFoundException("Flashcard not found"));
   }
 
   public Flashcard createFlashcard(String front, String back) {

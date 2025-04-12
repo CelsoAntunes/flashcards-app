@@ -26,6 +26,9 @@ public class FlashcardService {
   }
 
   public Flashcard findById(Long id) {
+    if (id == null) {
+      throw new FlashcardValidationException("Id cannot be null");
+    }
     return flashcardRepository
         .findById(id)
         .orElseThrow(() -> new FlashcardNotFoundException("Flashcard not found"));
@@ -46,5 +49,15 @@ public class FlashcardService {
       throw new FlashcardValidationException("Invalid flashcard");
     }
     return flashcardRepository.save(flashcard);
+  }
+
+  public void deleteFlashcardById(Long id) {
+    if (id == null) {
+      throw new FlashcardValidationException("Id cannot be null");
+    }
+    if (findById(id) == null) {
+      throw new FlashcardNotFoundException("Flashcard not found");
+    }
+    flashcardRepository.deleteById(id);
   }
 }

@@ -18,9 +18,9 @@ This roadmap breaks your project into clear **learning phases**, each focused on
 📄 [View details](phase-1-tdd.md)
 **Goal:** Shift mindset to TDD-first and ensure tests guide development.
 
-- [ ] Write a simple **failing unit test** before writing new logic (red-green-refactor)
-- [ ] Organize tests using Maven Surefire / JUnit 5 conventions
-- [ ] Set up testing layers: Unit, Integration, End-to-End
+- [x] Write a simple **failing unit test** before writing new logic (red-green-refactor)
+- [x] Organize tests using Maven Surefire / JUnit 5 conventions
+- [x] Set up testing layers: Unit, Integration, End-to-End
 - [ ] Add utility classes for test data (e.g., TestContainers or @TestConfiguration)
 
 > 📌 Tip: Start with a small feature or endpoint and TDD it fully — this becomes your model for future work.

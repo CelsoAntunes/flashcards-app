@@ -2,14 +2,16 @@ package com.antunes.flashcards.domain.user;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.antunes.flashcards.domain.user.exception.EmailValidationException;
+import com.antunes.flashcards.domain.user.model.Email;
 import org.junit.jupiter.api.Test;
 
-public class EmailTest {
+public class EmailTests {
 
   @Test
   void validEmail_shouldNotThrow() {
-    assertDoesNotThrow(() -> new Email("user@example.com"));
-    assertEquals("user@example.com", Email.get());
+    Email email = new Email("user@example.com");
+    assertEquals("user@example.com", email.getValue());
   }
 
   @Test

@@ -1,8 +1,9 @@
-package com.antunes.flashcards.validation;
+package com.antunes.flashcards.domain.flashcard.validation;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.antunes.flashcards.model.Flashcard;
+import com.antunes.flashcards.domain.flascard.model.Flashcard;
+import com.antunes.flashcards.domain.flascard.validation.FlashcardValidator;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

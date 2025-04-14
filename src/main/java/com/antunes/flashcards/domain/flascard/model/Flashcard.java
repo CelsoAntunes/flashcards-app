@@ -1,4 +1,4 @@
-package com.antunes.flashcards.model;
+package com.antunes.flashcards.domain.flascard.model;
 
 import jakarta.persistence.*;
 

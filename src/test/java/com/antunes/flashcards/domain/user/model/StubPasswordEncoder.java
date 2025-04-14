@@ -1,4 +1,4 @@
-package com.antunes.flashcards.domain.user;
+package com.antunes.flashcards.domain.user.model;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 

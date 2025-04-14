@@ -1,9 +1,9 @@
-package com.antunes.flashcards.domain.user;
+package com.antunes.flashcards.domain.user.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.antunes.flashcards.domain.user.PasswordFactory;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
-import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.validation.PasswordValidator;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ public class PasswordFactoryTests {
 
   @ParameterizedTest
   @MethodSource(
-      "com.antunes.flashcards.domain.user.PasswordFactoryTests#provideInvalidPasswordData")
+      "com.antunes.flashcards.domain.user.model.PasswordFactoryTests#provideInvalidPasswordData")
   void invalidPassword_shouldThrow(String password, String expectedMessage) {
     PasswordValidationException exception =
         assertThrows(PasswordValidationException.class, () -> passwordFactory.create(password));

@@ -1,9 +1,8 @@
-package com.antunes.flashcards.domain.user;
+package com.antunes.flashcards.domain.user.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
-import com.antunes.flashcards.domain.user.model.Email;
 import org.junit.jupiter.api.Test;
 
 public class EmailTests {

@@ -1,6 +1,6 @@
-package com.antunes.flashcards.repository;
+package com.antunes.flashcards.domain.flascard.repository;
 
-import com.antunes.flashcards.model.Flashcard;
+import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

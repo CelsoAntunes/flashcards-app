@@ -1,10 +1,11 @@
-package com.antunes.flashcards.service;
+package com.antunes.flashcards.domain.flashcard.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.antunes.flashcards.exception.FlashcardNotFoundException;
-import com.antunes.flashcards.exception.FlashcardValidationException;
-import com.antunes.flashcards.model.Flashcard;
+import com.antunes.flashcards.domain.flascard.exception.FlashcardNotFoundException;
+import com.antunes.flashcards.domain.flascard.exception.FlashcardValidationException;
+import com.antunes.flashcards.domain.flascard.model.Flashcard;
+import com.antunes.flashcards.domain.flascard.service.FlashcardService;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ public class FlashcardServiceIntegrationTests {
 
     @ParameterizedTest
     @MethodSource(
-        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+        "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
     void saveInvalidFlashcard(String front, String back) {
       Flashcard flashcard = new Flashcard(front, back);
       FlashcardValidationException exception =
@@ -100,7 +101,7 @@ public class FlashcardServiceIntegrationTests {
 
     @ParameterizedTest
     @MethodSource(
-        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+        "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
     void createFlashcardInvalidInput(String front, String back) {
       FlashcardValidationException exception =
           assertThrows(
@@ -123,7 +124,7 @@ public class FlashcardServiceIntegrationTests {
 
     @ParameterizedTest
     @MethodSource(
-        "com.antunes.flashcards.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
+        "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
     void updateFlashcardInvalidInput(String front, String back) {
       Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
       FlashcardValidationException exception =

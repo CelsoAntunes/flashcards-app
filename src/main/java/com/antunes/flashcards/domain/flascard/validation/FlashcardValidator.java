@@ -1,6 +1,6 @@
-package com.antunes.flashcards.validation;
+package com.antunes.flashcards.domain.flascard.validation;
 
-import com.antunes.flashcards.model.Flashcard;
+import com.antunes.flashcards.domain.flascard.model.Flashcard;
 
 public class FlashcardValidator {
   public static boolean isValid(Flashcard flashcard) {

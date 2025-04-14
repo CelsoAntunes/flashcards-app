@@ -1,4 +1,4 @@
-package com.antunes.flashcards.exception;
+package com.antunes.flashcards.domain.flascard.exception;
 
 public class FlashcardValidationException extends RuntimeException {
   private String errorCode;

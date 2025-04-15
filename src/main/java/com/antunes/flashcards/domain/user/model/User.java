@@ -1,6 +1,5 @@
 package com.antunes.flashcards.domain.user.model;
 
-import com.antunes.flashcards.domain.user.PasswordFactory;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,9 +17,9 @@ public class User {
     this.password = null;
   }
 
-  public User(String email, String password, PasswordFactory passwordFactory) {
+  public User(String email, Password password) {
     this.email = new Email(email);
-    this.password = passwordFactory.create(password);
+    this.password = password;
   }
 
   public Long getId() {

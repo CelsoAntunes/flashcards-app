@@ -13,13 +13,15 @@ public class UserTests {
   @Test
   void shouldCreateUserWithValidEmailAndPassword() {
     String email = "user@example.com";
-    String password = "secretPassword123";
+    String rawPassword = "secretPassword123";
 
-    User user = new User(email, password, passwordFactory);
+    Password password = passwordFactory.create(rawPassword);
+
+    User user = new User(email, password);
 
     assertEquals(email, user.getEmail());
     assertNotNull(user.getHashedPassword());
     assertNotEquals(password, user.getHashedPassword());
-    assertTrue(user.getHashedPassword().startsWith("$2"), "Password should be bcrypt hash");
+    assertTrue(user.getHashedPassword().startsWith("$2stub$"), "Password should be bcrypt hash");
   }
 }

@@ -12,14 +12,17 @@ public class UserTests {
 
   @Test
   void shouldCreateUserWithValidEmailAndPassword() {
-    String email = "user@example.com";
-    String password = "secretPassword123";
+    String rawEmail = "user@example.com";
+    String rawPassword = "secretPassword123";
 
-    User user = new User(email, password, passwordFactory);
+    Password password = passwordFactory.create(rawPassword);
+    Email email = new Email(rawEmail);
 
-    assertEquals(email, user.getEmail());
+    User user = new User(email, password);
+
+    assertEquals(rawEmail, user.getEmail());
     assertNotNull(user.getHashedPassword());
-    assertNotEquals(password, user.getHashedPassword());
-    assertTrue(user.getHashedPassword().startsWith("$2"), "Password should be bcrypt hash");
+    assertNotEquals(rawPassword, user.getHashedPassword());
+    assertTrue(user.getHashedPassword().startsWith("$2stub$"), "Password should be bcrypt hash");
   }
 }

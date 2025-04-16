@@ -1,6 +1,6 @@
 ## 📘 Flashcards App Development Roadmap (Java 17, Spring Boot, PostgreSQL, Docker, CI/CD)
 
-This roadmap breaks your project into clear **learning phases**, each focused on deepening your backend development skills with emphasis on best practices, TDD, CI/CD, Docker, and deployment.
+This roadmap breaks your project into clear **learning phases**, each focused on deepening your backend development skills with emphasis on best practices, TDD, DDD, CI/CD, Docker, and deployment.
 
 ---
 

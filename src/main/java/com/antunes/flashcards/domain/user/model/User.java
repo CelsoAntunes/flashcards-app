@@ -3,6 +3,7 @@ package com.antunes.flashcards.domain.user.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "users")
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,8 +18,8 @@ public class User {
     this.password = null;
   }
 
-  public User(String email, Password password) {
-    this.email = new Email(email);
+  public User(Email email, Password password) {
+    this.email = email;
     this.password = password;
   }
 

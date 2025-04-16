@@ -2,22 +2,38 @@ package com.antunes.flashcards.domain.user.model;
 
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
 import jakarta.persistence.Embeddable;
+import java.util.Objects;
 
 @Embeddable
 public class Email {
-  private final String value;
+  private String rawEmail;
 
-  public Email(String value) {
-    if (value == null) {
+  protected Email() {}
+
+  public Email(String rawEmail) {
+    if (rawEmail == null) {
       throw new EmailValidationException("Email cannot be null");
     }
-    if (!value.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+    if (!rawEmail.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
       throw new EmailValidationException("Not a valid email");
     }
-    this.value = value.toLowerCase();
+    this.rawEmail = rawEmail.toLowerCase();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Email email = (Email) o;
+    return Objects.equals(rawEmail, email.rawEmail);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(rawEmail);
   }
 
   public String getValue() {
-    return value;
+    return rawEmail;
   }
 }

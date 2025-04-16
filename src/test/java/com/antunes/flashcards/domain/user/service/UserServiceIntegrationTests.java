@@ -3,8 +3,11 @@ package com.antunes.flashcards.domain.user.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
+import com.antunes.flashcards.domain.user.exception.ExistingEmailException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
 import com.antunes.flashcards.domain.user.model.User;
+import com.antunes.flashcards.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +16,13 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 public class UserServiceIntegrationTests {
+  @Autowired private UserRepository userRepository;
   @Autowired private UserService userService;
+
+  @BeforeEach
+  public void setUp() {
+    userRepository.deleteAll();
+  }
 
   private final String rawEmail = "user@example.com";
   private final String rawPassword = "securePassword123";

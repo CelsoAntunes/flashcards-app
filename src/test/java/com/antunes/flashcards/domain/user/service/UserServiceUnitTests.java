@@ -5,13 +5,17 @@ import static org.mockito.Mockito.*;
 
 import com.antunes.flashcards.domain.user.PasswordFactory;
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
+import com.antunes.flashcards.domain.user.exception.ExistingEmailException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
+import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
+import com.antunes.flashcards.domain.user.validation.PasswordValidator;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,27 +23,30 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class UserServiceUnitTests {
 
   @Mock private UserRepository userRepository;
-
   @Mock private PasswordFactory passwordFactory;
+  private final PasswordValidator passwordValidator = new PasswordValidator();
 
-  @InjectMocks private UserService userService;
+  private UserService userService;
+
+  @BeforeEach
+  void setUp() {
+    userService = new UserService(userRepository, passwordFactory, passwordValidator);
+  }
+
+  private final String rawEmail = "user@example.com";
+  private final String rawPassword = "securePassword123";
 
   @Test
   void shouldRegisterUserWithValidCredentials() {
-    String rawEmail = "user@example.com";
-    String rawPassword = "securePassword123";
-    String hashedPassword = "hashed-password";
-
+    Email email = new Email(rawEmail);
     Password mockedPassword = mock(Password.class);
-    when(mockedPassword.getHashedPassword()).thenReturn(hashedPassword);
     when(passwordFactory.create(rawPassword)).thenReturn(mockedPassword);
-
-    User mockedUser = new User(rawEmail, mockedPassword);
+    User mockedUser = new User(email, mockedPassword);
     when(userRepository.save(any(User.class))).thenReturn(mockedUser);
 
     User user = userService.register(rawEmail, rawPassword);
 
-    assertNotNull(user.getId());
+    assertNotNull(user.getEmail());
     assertEquals(rawEmail, user.getEmail());
 
     verify(userRepository, times(1)).save(any(User.class));
@@ -49,10 +56,10 @@ public class UserServiceUnitTests {
 
   @Test
   void shouldNotRegisterUserWithExistingEmail() {
-    String rawEmail = "user@example.com";
-    String rawPassword = "securePassword123";
+    Email email = new Email(rawEmail);
+    User existingUser = new User(email, mock(Password.class));
 
-    when(userRepository.existsByEmail(rawEmail)).thenReturn(true);
+    when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
 
     ExistingEmailException exception =
         assertThrows(
@@ -63,26 +70,22 @@ public class UserServiceUnitTests {
   @Test
   void shouldThrowExceptionForInvalidEmail() {
     String invalidEmail = "not-an-email";
-    String password = "securePassword123";
 
     EmailValidationException exception =
         assertThrows(
-            EmailValidationException.class, () -> userService.register(invalidEmail, password));
+            EmailValidationException.class, () -> userService.register(invalidEmail, rawPassword));
     assertEquals("Not a valid email", exception.getMessage());
   }
 
   @Test
   void shouldThrowExceptionForNullEmail() {
-    String password = "securePassword123";
-
     EmailValidationException exception =
-        assertThrows(EmailValidationException.class, () -> userService.register(null, password));
+        assertThrows(EmailValidationException.class, () -> userService.register(null, rawPassword));
     assertEquals("Email cannot be null", exception.getMessage());
   }
 
   @Test
   void shouldThrowExceptionForShortPassword() {
-    String rawEmail = "user@example.com";
     String shortPassword = "short";
     PasswordValidationException exception =
         assertThrows(

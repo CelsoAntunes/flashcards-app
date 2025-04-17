@@ -2,6 +2,7 @@ package com.antunes.flashcards.domain.flashcard.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.antunes.flashcards.domain.flascard.exception.FlashcardWithoutUserException;
 import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import org.junit.jupiter.api.Test;
 

@@ -5,6 +5,7 @@ import com.antunes.flashcards.domain.flascard.exception.FlashcardValidationExcep
 import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
 import com.antunes.flashcards.domain.flascard.validation.FlashcardValidator;
+import com.antunes.flashcards.domain.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +35,8 @@ public class FlashcardService {
         .orElseThrow(() -> new FlashcardNotFoundException("Flashcard not found"));
   }
 
-  public Flashcard createFlashcard(String question, String answer) {
-    Flashcard flashcard = new Flashcard(question, answer);
+  public Flashcard createFlashcard(String question, String answer, User user) {
+    Flashcard flashcard = new Flashcard(question, answer, user);
     if (!FlashcardValidator.isValid(flashcard)) {
       throw new FlashcardValidationException("Invalid flashcard");
     }

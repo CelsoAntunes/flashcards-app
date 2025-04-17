@@ -1,5 +1,6 @@
 package com.antunes.flashcards.domain.flascard.model;
 
+import com.antunes.flashcards.domain.user.model.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,11 +12,16 @@ public class Flashcard {
   @Column private String question;
   @Column private String answer;
 
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "owner_id")
+  private User owner;
+
   public Flashcard() {}
 
-  public Flashcard(String question, String answer) {
+  public Flashcard(String question, String answer, User owner) {
     this.question = question;
     this.answer = answer;
+    this.owner = owner;
   }
 
   public Long getId() {
@@ -36,5 +42,9 @@ public class Flashcard {
 
   public void setAnswer(String answer) {
     this.answer = answer;
+  }
+
+  public User getOwner() {
+    return owner;
   }
 }

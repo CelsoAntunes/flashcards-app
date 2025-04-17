@@ -9,14 +9,29 @@ import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
+import com.antunes.flashcards.domain.user.validation.PasswordValidator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-public class FlashcardRepositoryUnitTests {
+@Import(FlashcardRepositoryTests.TestConfig.class)
+public class FlashcardRepositoryTests {
+
+  @TestConfiguration
+  static class TestConfig {
+    @Bean
+    public PasswordFactory passwordFactory() {
+      PasswordValidator validator = new PasswordValidator();
+      PasswordEncoder encoder = new BCryptPasswordEncoder();
+      return new PasswordFactory(validator, encoder);
+    }
+  }
 
   @Autowired private FlashcardRepository flashcardRepository;
   @Autowired private UserRepository userRepository;
@@ -28,11 +43,13 @@ public class FlashcardRepositoryUnitTests {
     Password password = passwordFactory.create("securePassword123");
     User user = new User(email, password);
     userRepository.save(user);
+
     Flashcard flashcard = new Flashcard("question", "answer", user);
     Flashcard savedFlashcard = flashcardRepository.save(flashcard);
+
     assertNotNull(savedFlashcard.getId());
-    assertEquals("question", flashcard.getQuestion());
-    assertEquals("answer", flashcard.getAnswer());
-    assertEquals(user, flashcard.getOwner());
+    assertEquals("question", savedFlashcard.getQuestion());
+    assertEquals("answer", savedFlashcard.getAnswer());
+    assertEquals(user, savedFlashcard.getOwner());
   }
 }

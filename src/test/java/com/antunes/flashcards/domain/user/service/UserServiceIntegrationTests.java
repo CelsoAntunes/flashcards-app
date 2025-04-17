@@ -2,6 +2,7 @@ package com.antunes.flashcards.domain.user.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
 import com.antunes.flashcards.domain.user.exception.ExistingEmailException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
@@ -18,9 +19,11 @@ import org.springframework.test.context.ActiveProfiles;
 public class UserServiceIntegrationTests {
   @Autowired private UserRepository userRepository;
   @Autowired private UserService userService;
+  @Autowired private FlashcardRepository flashcardRepository;
 
   @BeforeEach
   public void setUp() {
+    flashcardRepository.deleteAll();
     userRepository.deleteAll();
   }
 

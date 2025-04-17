@@ -7,6 +7,7 @@ import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
 import com.antunes.flashcards.domain.user.validation.PasswordValidator;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,11 @@ public class UserService {
 
   public boolean emailExists(Email email) {
     return userRepository.findByEmail(email).isPresent();
+  }
+
+  public Optional<User> findByEmail(String rawEmail) {
+    Email email = new Email(rawEmail);
+    return userRepository.findByEmail(email);
   }
 
   public User register(String rawEmail, String rawPassword) {

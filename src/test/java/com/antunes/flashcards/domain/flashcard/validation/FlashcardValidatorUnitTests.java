@@ -14,14 +14,14 @@ public class FlashcardValidatorUnitTests {
 
   private static Stream<Arguments> provideInvalidFlashcardData() {
     return Stream.of(
-        Arguments.of(" ", "back"),
-        Arguments.of("", "back"),
-        Arguments.of("   ", "back"),
-        Arguments.of(null, "back"),
-        Arguments.of("front", ""),
-        Arguments.of("front", " "),
-        Arguments.of("front", "   "),
-        Arguments.of("front", null),
+        Arguments.of(" ", "answer"),
+        Arguments.of("", "answer"),
+        Arguments.of("   ", "answer"),
+        Arguments.of(null, "answer"),
+        Arguments.of("question", ""),
+        Arguments.of("question", " "),
+        Arguments.of("question", "   "),
+        Arguments.of("question", null),
         Arguments.of("", ""));
   }
 
@@ -34,7 +34,7 @@ public class FlashcardValidatorUnitTests {
 
   @Test
   void validFlashcard() {
-    Flashcard flashcard = new Flashcard("front", "back");
+    Flashcard flashcard = new Flashcard("question", "answer");
     assertTrue(FlashcardValidator.isValid(flashcard));
   }
 }

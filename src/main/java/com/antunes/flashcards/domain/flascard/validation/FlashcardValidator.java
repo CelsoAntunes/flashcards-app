@@ -4,9 +4,9 @@ import com.antunes.flashcards.domain.flascard.model.Flashcard;
 
 public class FlashcardValidator {
   public static boolean isValid(Flashcard flashcard) {
-    return (flashcard.getFront() != null)
-        && !flashcard.getFront().isBlank()
-        && (flashcard.getBack() != null)
-        && !flashcard.getBack().isBlank();
+    return (flashcard.getQuestion() != null)
+        && !flashcard.getQuestion().isBlank()
+        && (flashcard.getAnswer() != null)
+        && !flashcard.getAnswer().isBlank();
   }
 }

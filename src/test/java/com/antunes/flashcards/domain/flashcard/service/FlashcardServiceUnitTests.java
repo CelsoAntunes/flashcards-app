@@ -35,25 +35,25 @@ public class FlashcardServiceUnitTests {
 
   private static Stream<Arguments> provideInvalidFlashcardData() {
     return Stream.of(
-        Arguments.of(" ", "back"),
-        Arguments.of("", "back"),
-        Arguments.of("   ", "back"),
-        Arguments.of(null, "back"),
-        Arguments.of("front", ""),
-        Arguments.of("front", " "),
-        Arguments.of("front", "   "),
-        Arguments.of("front", null),
+        Arguments.of(" ", "answer"),
+        Arguments.of("", "answer"),
+        Arguments.of("   ", "answer"),
+        Arguments.of(null, "answer"),
+        Arguments.of("question", ""),
+        Arguments.of("question", " "),
+        Arguments.of("question", "   "),
+        Arguments.of("question", null),
         Arguments.of("", ""));
   }
 
-  private Flashcard buildFlashcard(String front, String back) {
-    return new Flashcard(front, back);
+  private Flashcard buildFlashcard(String question, String answer) {
+    return new Flashcard(question, answer);
   }
 
-  private void assertFlashcardContent(Flashcard flashcard, String front, String back) {
+  private void assertFlashcardContent(Flashcard flashcard, String question, String answer) {
     assertNotNull(flashcard);
-    assertEquals(front, flashcard.getFront());
-    assertEquals(back, flashcard.getBack());
+    assertEquals(question, flashcard.getQuestion());
+    assertEquals(answer, flashcard.getAnswer());
   }
 
   private Flashcard withId(Flashcard flashcard, Long id) {
@@ -71,19 +71,19 @@ public class FlashcardServiceUnitTests {
   class Save {
     @Test
     void saveValidInput() {
-      Flashcard flashcard = buildFlashcard("front", "back");
+      Flashcard flashcard = buildFlashcard("question", "answer");
       when(flashcardRepository.save(any(Flashcard.class))).thenReturn(flashcard);
 
       Flashcard savedFlashcard = flashcardService.save(flashcard);
 
-      assertFlashcardContent(savedFlashcard, "front", "back");
+      assertFlashcardContent(savedFlashcard, "question", "answer");
     }
 
     @ParameterizedTest
     @MethodSource(
         "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceUnitTests#provideInvalidFlashcardData")
-    void saveInvalidInput(String front, String back) {
-      Flashcard flashcard = buildFlashcard(front, back);
+    void saveInvalidInput(String question, String answer) {
+      Flashcard flashcard = buildFlashcard(question, answer);
 
       FlashcardValidationException exception =
           assertThrows(FlashcardValidationException.class, () -> flashcardService.save(flashcard));
@@ -96,12 +96,12 @@ public class FlashcardServiceUnitTests {
     @Test
     void findByIdValidId() {
       Long id = 1L;
-      Flashcard flashcard = withId(new Flashcard("front", "back"), id);
+      Flashcard flashcard = withId(new Flashcard("question", "answer"), id);
       when(flashcardRepository.save(any(Flashcard.class))).thenReturn(flashcard);
       when(flashcardRepository.findById(flashcard.getId())).thenReturn(Optional.of(flashcard));
       flashcardRepository.save(flashcard);
       Flashcard foundById = flashcardService.findById(flashcard.getId());
-      assertFlashcardContent(foundById, "front", "back");
+      assertFlashcardContent(foundById, "question", "answer");
     }
 
     @Test
@@ -123,22 +123,22 @@ public class FlashcardServiceUnitTests {
       when(flashcardRepository.save(any(Flashcard.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
 
-      Flashcard createdFlashcard = flashcardService.createFlashcard("front", "back");
-      assertFlashcardContent(createdFlashcard, "front", "back");
+      Flashcard createdFlashcard = flashcardService.createFlashcard("question", "answer");
+      assertFlashcardContent(createdFlashcard, "question", "answer");
       ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
       verify(flashcardRepository).save(captor.capture());
       Flashcard captured = captor.getValue();
-      assertFlashcardContent(captured, "front", "back");
+      assertFlashcardContent(captured, "question", "answer");
     }
 
     @ParameterizedTest
     @MethodSource(
         "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceUnitTests#provideInvalidFlashcardData")
-    void createFlashcardInvalidInput(String front, String back) {
+    void createFlashcardInvalidInput(String question, String answer) {
       FlashcardValidationException exception =
           assertThrows(
               FlashcardValidationException.class,
-              () -> flashcardService.createFlashcard(front, back));
+              () -> flashcardService.createFlashcard(question, answer));
       assertEquals(validationErrorInvalid, exception.getMessage());
     }
   }
@@ -150,29 +150,29 @@ public class FlashcardServiceUnitTests {
       when(flashcardRepository.save(any(Flashcard.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
 
-      Flashcard existingFlashcard = buildFlashcard("front", "back");
+      Flashcard existingFlashcard = buildFlashcard("question", "answer");
       assertNotNull(existingFlashcard);
-      assertFlashcardContent(existingFlashcard, "front", "back");
+      assertFlashcardContent(existingFlashcard, "question", "answer");
 
       Flashcard updatedFlashcard =
-          flashcardService.updateFlashcard(existingFlashcard, "new front", "new back");
-      assertFlashcardContent(updatedFlashcard, "new front", "new back");
-      assertFlashcardContent(existingFlashcard, "new front", "new back");
+          flashcardService.updateFlashcard(existingFlashcard, "new question", "new answer");
+      assertFlashcardContent(updatedFlashcard, "new question", "new answer");
+      assertFlashcardContent(existingFlashcard, "new question", "new answer");
       ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
       verify(flashcardRepository).save(captor.capture());
       Flashcard captured = captor.getValue();
-      assertFlashcardContent(captured, "new front", "new back");
+      assertFlashcardContent(captured, "new question", "new answer");
     }
 
     @ParameterizedTest
     @MethodSource(
         "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceUnitTests#provideInvalidFlashcardData")
-    void updateFlashcardInvalidInput(String front, String back) {
-      Flashcard existingFlashcard = buildFlashcard("front", "back");
+    void updateFlashcardInvalidInput(String question, String answer) {
+      Flashcard existingFlashcard = buildFlashcard("question", "answer");
       FlashcardValidationException exception =
           assertThrows(
               FlashcardValidationException.class,
-              () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
+              () -> flashcardService.updateFlashcard(existingFlashcard, question, answer));
       assertEquals(validationErrorInvalid, exception.getMessage());
     }
   }
@@ -182,7 +182,7 @@ public class FlashcardServiceUnitTests {
     @Test
     void deleteFlashcardExistingId() {
       Long id = 1L;
-      Flashcard existingFlashcard = withId(new Flashcard("front", "back"), id);
+      Flashcard existingFlashcard = withId(new Flashcard("question", "answer"), id);
       when(flashcardRepository.findById(existingFlashcard.getId()))
           .thenReturn(Optional.of(existingFlashcard));
       flashcardService.deleteFlashcardById(id);

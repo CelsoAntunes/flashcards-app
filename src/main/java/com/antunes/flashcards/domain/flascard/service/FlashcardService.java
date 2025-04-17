@@ -34,17 +34,17 @@ public class FlashcardService {
         .orElseThrow(() -> new FlashcardNotFoundException("Flashcard not found"));
   }
 
-  public Flashcard createFlashcard(String front, String back) {
-    Flashcard flashcard = new Flashcard(front, back);
+  public Flashcard createFlashcard(String question, String answer) {
+    Flashcard flashcard = new Flashcard(question, answer);
     if (!FlashcardValidator.isValid(flashcard)) {
       throw new FlashcardValidationException("Invalid flashcard");
     }
     return flashcardRepository.save(flashcard);
   }
 
-  public Flashcard updateFlashcard(Flashcard flashcard, String front, String back) {
-    flashcard.setFront(front);
-    flashcard.setBack(back);
+  public Flashcard updateFlashcard(Flashcard flashcard, String question, String answer) {
+    flashcard.setQuestion(question);
+    flashcard.setAnswer(answer);
     if (!FlashcardValidator.isValid(flashcard)) {
       throw new FlashcardValidationException("Invalid flashcard");
     }

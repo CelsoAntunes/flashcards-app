@@ -28,37 +28,37 @@ public class FlashcardServiceIntegrationTests {
 
   private static Stream<Arguments> provideInvalidFlashcardData() {
     return Stream.of(
-        Arguments.of(" ", "back"),
-        Arguments.of("", "back"),
-        Arguments.of("   ", "back"),
-        Arguments.of(null, "back"),
-        Arguments.of("front", ""),
-        Arguments.of("front", " "),
-        Arguments.of("front", "   "),
-        Arguments.of("front", null),
+        Arguments.of(" ", "answer"),
+        Arguments.of("", "answer"),
+        Arguments.of("   ", "answer"),
+        Arguments.of(null, "answer"),
+        Arguments.of("question", ""),
+        Arguments.of("question", " "),
+        Arguments.of("question", "   "),
+        Arguments.of("question", null),
         Arguments.of("", ""));
   }
 
-  private void assertFlashcardContent(Flashcard flashcard, String front, String back) {
+  private void assertFlashcardContent(Flashcard flashcard, String question, String answer) {
     assertNotNull(flashcard);
-    assertEquals(front, flashcard.getFront());
-    assertEquals(back, flashcard.getBack());
+    assertEquals(question, flashcard.getQuestion());
+    assertEquals(answer, flashcard.getAnswer());
   }
 
   @Nested
   class Save {
     @Test
     void saveValidFlashcard() {
-      Flashcard flashcard = new Flashcard("front", "back");
+      Flashcard flashcard = new Flashcard("question", "answer");
       Flashcard savedFlashcard = flashcardService.save(flashcard);
-      assertFlashcardContent(savedFlashcard, "front", "back");
+      assertFlashcardContent(savedFlashcard, "question", "answer");
     }
 
     @ParameterizedTest
     @MethodSource(
         "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
-    void saveInvalidFlashcard(String front, String back) {
-      Flashcard flashcard = new Flashcard(front, back);
+    void saveInvalidFlashcard(String question, String answer) {
+      Flashcard flashcard = new Flashcard(question, answer);
       FlashcardValidationException exception =
           assertThrows(FlashcardValidationException.class, () -> flashcardService.save(flashcard));
       assertEquals(validationErrorInvalid, exception.getMessage());
@@ -69,11 +69,11 @@ public class FlashcardServiceIntegrationTests {
   class FindById {
     @Test
     void findByIdValidId() {
-      Flashcard flashcard = new Flashcard("front", "back");
+      Flashcard flashcard = new Flashcard("question", "answer");
       flashcardService.save(flashcard);
       Flashcard retrievedFlashcard = flashcardService.findById(flashcard.getId());
 
-      assertFlashcardContent(retrievedFlashcard, "front", "back");
+      assertFlashcardContent(retrievedFlashcard, "question", "answer");
     }
 
     @Test
@@ -95,18 +95,18 @@ public class FlashcardServiceIntegrationTests {
   class CreateFlashcard {
     @Test
     void createFlashcardValidInput() {
-      Flashcard createdFlashcard = flashcardService.createFlashcard("front", "back");
-      assertFlashcardContent(createdFlashcard, "front", "back");
+      Flashcard createdFlashcard = flashcardService.createFlashcard("question", "answer");
+      assertFlashcardContent(createdFlashcard, "question", "answer");
     }
 
     @ParameterizedTest
     @MethodSource(
         "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
-    void createFlashcardInvalidInput(String front, String back) {
+    void createFlashcardInvalidInput(String question, String answer) {
       FlashcardValidationException exception =
           assertThrows(
               FlashcardValidationException.class,
-              () -> flashcardService.createFlashcard(front, back));
+              () -> flashcardService.createFlashcard(question, answer));
       assertEquals(validationErrorInvalid, exception.getMessage());
     }
   }
@@ -115,22 +115,22 @@ public class FlashcardServiceIntegrationTests {
   class UpdateFlashcard {
     @Test
     void updateFlashcardValidInput() {
-      Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
+      Flashcard existingFlashcard = flashcardService.createFlashcard("question", "answer");
       Flashcard updatedFlashcard =
-          flashcardService.updateFlashcard(existingFlashcard, "new front", "new back");
-      assertFlashcardContent(existingFlashcard, "new front", "new back");
-      assertFlashcardContent(updatedFlashcard, "new front", "new back");
+          flashcardService.updateFlashcard(existingFlashcard, "new question", "new answer");
+      assertFlashcardContent(existingFlashcard, "new question", "new answer");
+      assertFlashcardContent(updatedFlashcard, "new question", "new answer");
     }
 
     @ParameterizedTest
     @MethodSource(
         "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
-    void updateFlashcardInvalidInput(String front, String back) {
-      Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
+    void updateFlashcardInvalidInput(String question, String answer) {
+      Flashcard existingFlashcard = flashcardService.createFlashcard("question", "answer");
       FlashcardValidationException exception =
           assertThrows(
               FlashcardValidationException.class,
-              () -> flashcardService.updateFlashcard(existingFlashcard, front, back));
+              () -> flashcardService.updateFlashcard(existingFlashcard, question, answer));
       assertEquals(validationErrorInvalid, exception.getMessage());
     }
   }
@@ -139,7 +139,7 @@ public class FlashcardServiceIntegrationTests {
   class DeleteFlashcard {
     @Test
     void deleteFlashcardExistingId() {
-      Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
+      Flashcard existingFlashcard = flashcardService.createFlashcard("question", "answer");
       Long id = existingFlashcard.getId();
       flashcardService.deleteFlashcardById(id);
       FlashcardNotFoundException exception =
@@ -149,7 +149,7 @@ public class FlashcardServiceIntegrationTests {
 
     @Test
     void deleteFlashcardExistingIdTwice() {
-      Flashcard existingFlashcard = flashcardService.createFlashcard("front", "back");
+      Flashcard existingFlashcard = flashcardService.createFlashcard("question", "answer");
       Long id = existingFlashcard.getId();
       flashcardService.deleteFlashcardById(id);
       Exception exception =

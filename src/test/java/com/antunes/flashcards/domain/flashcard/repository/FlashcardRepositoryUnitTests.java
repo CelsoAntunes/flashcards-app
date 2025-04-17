@@ -17,12 +17,12 @@ public class FlashcardRepositoryUnitTests {
 
   @Test
   void testSaveFlashcard() {
-    Flashcard flashcard = new Flashcard("front", "back");
+    Flashcard flashcard = new Flashcard("question", "answer");
     when(flashcardRepository.save(any(Flashcard.class))).thenReturn(flashcard);
     Flashcard savedFlashcard = flashcardRepository.save(flashcard);
     assertNotNull(savedFlashcard);
-    assertEquals("front", flashcard.getFront());
-    assertEquals("back", flashcard.getBack());
+    assertEquals("question", flashcard.getQuestion());
+    assertEquals("answer", flashcard.getAnswer());
     verify(flashcardRepository, times(1)).save(flashcard);
   }
 }

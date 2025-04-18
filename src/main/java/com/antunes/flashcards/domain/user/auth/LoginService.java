@@ -32,7 +32,6 @@ public class LoginService {
     if (!passwordEncoder.matches(rawPassword, storedHashed)) {
       throw new PasswordValidationException("Incorrect password");
     }
-
     return "dummy-token";
   }
 }

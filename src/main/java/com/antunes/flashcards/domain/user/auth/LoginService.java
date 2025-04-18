@@ -25,7 +25,7 @@ public class LoginService {
     Email email = new Email(rawEmail);
     Optional<User> userOptional = userRepository.findByEmail(email);
     if (userOptional.isEmpty()) {
-      throw new UserNotFoundException("User not found");
+      throw new UserNotFoundException("No accounts with this email");
     }
     User user = userOptional.get();
     String storedHashed = user.getHashedPassword();

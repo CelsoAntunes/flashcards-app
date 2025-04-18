@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
+import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.StubPasswordEncoder;
@@ -56,5 +57,14 @@ public class AuthenticationUnitTests {
             PasswordValidationException.class,
             () -> loginService.login(rawEmail, incorrectPassword));
     assertEquals("Incorrect password", exception.getMessage());
+  }
+
+  @Test
+  void unregisteredUserCannotLogin_shouldThrow() {
+    Email email = new Email(rawEmail);
+    when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+    UserNotFoundException exception =
+        assertThrows(UserNotFoundException.class, () -> loginService.login(rawEmail, rawPassword));
+    assertEquals("No accounts with this email", exception.getMessage());
   }
 }

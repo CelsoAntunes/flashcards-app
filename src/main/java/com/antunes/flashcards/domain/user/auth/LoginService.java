@@ -5,6 +5,7 @@ import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
+import com.antunes.flashcards.infrastructure.security.JwtTokenProvider;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,11 +15,16 @@ import org.springframework.stereotype.Service;
 public class LoginService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final JwtTokenProvider jwtTokenProvider;
 
   @Autowired
-  public LoginService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public LoginService(
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder,
+      JwtTokenProvider jwtTokenProvider) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.jwtTokenProvider = jwtTokenProvider;
   }
 
   public String login(String rawEmail, String rawPassword) {
@@ -32,6 +38,6 @@ public class LoginService {
     if (!passwordEncoder.matches(rawPassword, storedHashed)) {
       throw new PasswordValidationException("Incorrect password");
     }
-    return "dummy-token";
+    return jwtTokenProvider.generateToken(user.getEmail(), user.getId());
   }
 }

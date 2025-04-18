@@ -10,6 +10,7 @@ import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.StubPasswordEncoder;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
+import com.antunes.flashcards.infrastructure.security.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -35,10 +36,13 @@ public class AuthenticationUnitTests {
 
   @Mock UserRepository userRepository;
   private final PasswordEncoder passwordEncoder = new StubPasswordEncoder();
+  private JwtTokenProvider jwtTokenProvider;
 
   @BeforeEach
   void setUp() {
-    loginService = new LoginService(userRepository, passwordEncoder);
+    jwtTokenProvider = new JwtTokenProvider();
+    jwtTokenProvider.setSecretKey(secretKey);
+    loginService = new LoginService(userRepository, passwordEncoder, jwtTokenProvider);
   }
 
   @Test

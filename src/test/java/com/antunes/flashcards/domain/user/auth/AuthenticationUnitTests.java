@@ -10,7 +10,12 @@ import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.StubPasswordEncoder;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +27,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class AuthenticationUnitTests {
   private final String rawEmail = "user@example.com";
   private final String rawPassword = "securePassword123";
+
+  private final SecretKey secretKey =
+      Keys.hmacShaKeyFor("my-super-secret-key-that-is-32bytes!".getBytes(StandardCharsets.UTF_8));
 
   private LoginService loginService;
 
@@ -77,7 +85,7 @@ public class AuthenticationUnitTests {
     when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockedUser));
     String token = loginService.login(rawEmail, rawPassword);
     Claims claims =
-        Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimJws(token).getBody();
+        Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
     assertEquals(rawEmail, claims.getSubject());
   }
 }

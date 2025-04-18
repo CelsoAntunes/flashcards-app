@@ -67,4 +67,17 @@ public class AuthenticationUnitTests {
         assertThrows(UserNotFoundException.class, () -> loginService.login(rawEmail, rawPassword));
     assertEquals("No accounts with this email", exception.getMessage());
   }
+
+  @Test
+  void loginShouldReturnValidJwtToken() {
+    Email email = new Email(rawEmail);
+    Password mockedPassword = mock(Password.class);
+    when(mockedPassword.getHashedPassword()).thenReturn("$2stub$" + rawPassword);
+    User mockedUser = new User(email, mockedPassword);
+    when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockedUser));
+    String token = loginService.login(rawEmail, rawPassword);
+    Claims claims =
+        Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimJws(token).getBody();
+    assertEquals(rawEmail, claims.getSubject());
+  }
 }

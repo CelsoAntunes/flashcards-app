@@ -16,6 +16,7 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_HOST: db
       DB_PORT: 5432
+      JWT_SECRET: test-secret-should-be-at-least-32-bytes!
 
     steps:
       - name: Checkout code

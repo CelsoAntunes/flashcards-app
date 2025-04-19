@@ -2,6 +2,7 @@ package com.antunes.flashcards.domain.user.auth;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
 import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
 import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
@@ -28,6 +29,7 @@ public class AuthenticationIntegrationTests {
   @Autowired private JwtTokenProvider jwtTokenProvider;
   @Autowired private UserService userService;
   @Autowired private UserRepository userRepository;
+  @Autowired private FlashcardRepository flashcardRepository;
 
   private final String rawEmail = "user@example.com";
   private final String rawPassword = "securePassword123";
@@ -49,6 +51,7 @@ public class AuthenticationIntegrationTests {
 
   @BeforeAll
   void setUp() {
+    flashcardRepository.deleteAll();
     userRepository.deleteAll();
     userService.register(rawEmail, rawPassword);
   }

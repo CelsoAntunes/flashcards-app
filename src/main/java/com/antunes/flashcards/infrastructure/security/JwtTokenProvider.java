@@ -1,6 +1,8 @@
 package com.antunes.flashcards.infrastructure.security;
 
-import io.jsonwebtoken.Jwts;
+import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
+import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +23,10 @@ public class JwtTokenProvider {
     this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
   }
 
+  public void setSecretKey(SecretKey secretKey) {
+    this.secretKey = secretKey;
+  }
+
   public String generateToken(String subject, Long userId) {
     return Jwts.builder()
         .subject(subject)
@@ -31,7 +37,21 @@ public class JwtTokenProvider {
         .compact();
   }
 
-  public void setSecretKey(SecretKey secretKey) {
-    this.secretKey = secretKey;
+  public void validateToken(String token) {
+    if (token == null || token.isBlank()) {
+      throw new InvalidTokenException("Token cannot be null or blank");
+    }
+    try {
+      Jws<Claims> claimsJws = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+
+      Date expiration = claimsJws.getPayload().getExpiration();
+      if (expiration != null && expiration.before(new Date())) {
+        throw new TokenExpiredException("Token has expired");
+      }
+    } catch (ExpiredJwtException e) {
+      throw new TokenExpiredException("Token has expired");
+    } catch (JwtException e) {
+      throw new InvalidTokenException("Invalid token");
+    }
   }
 }

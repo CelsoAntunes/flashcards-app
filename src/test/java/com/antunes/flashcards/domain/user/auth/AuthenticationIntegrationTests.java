@@ -82,7 +82,7 @@ public class AuthenticationIntegrationTests {
 
   @Test
   void unregisteredUserCannotLogin_shouldThrow() {
-    String notRegisteredEmail = "nothere@example.com";
+    String notRegisteredEmail = "notthere@example.com";
     UserNotFoundException exception =
         assertThrows(
             UserNotFoundException.class, () -> loginService.login(notRegisteredEmail, rawPassword));

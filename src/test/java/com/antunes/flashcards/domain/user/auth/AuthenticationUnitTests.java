@@ -139,7 +139,7 @@ public class AuthenticationUnitTests {
 
     @Test
     void invalidToken_shouldThrow() {
-      String invalidToken = "invalid.Token";
+      String invalidToken = "invalid.token";
       InvalidTokenException exception =
           assertThrows(
               InvalidTokenException.class, () -> jwtTokenProvider.validateToken(invalidToken));

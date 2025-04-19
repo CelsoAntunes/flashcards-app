@@ -27,6 +27,10 @@ public class JwtTokenProvider {
     this.secretKey = secretKey;
   }
 
+  public SecretKey getSecretKey() {
+    return this.secretKey;
+  }
+
   public String generateToken(String subject, Long userId) {
     return Jwts.builder()
         .subject(subject)

@@ -38,6 +38,6 @@ public class LoginService {
     if (!passwordEncoder.matches(rawPassword, storedHashed)) {
       throw new PasswordValidationException("Incorrect password");
     }
-    return jwtTokenProvider.generateToken(user.getEmail(), user.getId());
+    return jwtTokenProvider.generateAuthToken(user.getEmail(), user.getId());
   }
 }

@@ -31,17 +31,33 @@ public class JwtTokenProvider {
     return this.secretKey;
   }
 
-  public String generateToken(String subject, Long userId) {
+  private Date buildExpiration(long millis) {
+    return new Date(System.currentTimeMillis() + millis);
+  }
+
+  public String generateAuthToken(String subject, Long userId) {
     return Jwts.builder()
         .subject(subject)
         .claim("userId", userId)
+        .claim("type", TokenType.AUTH.name())
         .issuedAt(new Date())
-        .expiration(new Date(System.currentTimeMillis() + 3600_000))
+        .expiration(buildExpiration(3600_000))
         .signWith(secretKey)
         .compact();
   }
 
-  public void validateToken(String token) {
+  public String generateResetToken(String subject, Long userId) {
+    return Jwts.builder()
+        .subject(subject)
+        .claim("userId", userId)
+        .claim("type", TokenType.RESET.name())
+        .issuedAt(new Date())
+        .expiration(buildExpiration(15 * 60 * 1000))
+        .signWith(secretKey)
+        .compact();
+  }
+
+  public void validateToken(String token, TokenType expectedType) {
     if (token == null || token.isBlank()) {
       throw new InvalidTokenException("Token cannot be null or blank");
     }
@@ -52,10 +68,19 @@ public class JwtTokenProvider {
       if (expiration != null && expiration.before(new Date())) {
         throw new TokenExpiredException("Token has expired");
       }
+
+      String type = claimsJws.getPayload().get("type", String.class);
+      if (!expectedType.name().equals(type)) {
+        throw new InvalidTokenException("Unexpected token type");
+      }
     } catch (ExpiredJwtException e) {
       throw new TokenExpiredException("Token has expired");
     } catch (JwtException e) {
       throw new InvalidTokenException("Invalid token");
     }
+  }
+
+  public Claims parseToken(String token) {
+    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
   }
 }

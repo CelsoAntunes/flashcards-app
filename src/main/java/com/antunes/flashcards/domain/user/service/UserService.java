@@ -1,12 +1,12 @@
 package com.antunes.flashcards.domain.user.service;
 
-import com.antunes.flashcards.domain.user.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordValidator;
 import com.antunes.flashcards.domain.user.exception.ExistingEmailException;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
-import com.antunes.flashcards.domain.user.validation.PasswordValidator;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

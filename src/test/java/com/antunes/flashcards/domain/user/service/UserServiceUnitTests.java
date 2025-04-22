@@ -3,7 +3,8 @@ package com.antunes.flashcards.domain.user.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.antunes.flashcards.domain.user.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordValidator;
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
 import com.antunes.flashcards.domain.user.exception.ExistingEmailException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
@@ -11,7 +12,6 @@ import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
-import com.antunes.flashcards.domain.user.validation.PasswordValidator;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

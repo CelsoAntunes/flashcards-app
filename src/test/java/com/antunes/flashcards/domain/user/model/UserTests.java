@@ -2,8 +2,8 @@ package com.antunes.flashcards.domain.user.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.antunes.flashcards.domain.user.PasswordFactory;
-import com.antunes.flashcards.domain.user.validation.PasswordValidator;
+import com.antunes.flashcards.domain.user.auth.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordValidator;
 import org.junit.jupiter.api.Test;
 
 public class UserTests {

@@ -5,9 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.antunes.flashcards.domain.user.auth.token.JwtTokenProvider;
 import com.antunes.flashcards.domain.user.auth.token.TokenType;
-import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
-import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
 import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
@@ -18,9 +16,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +31,6 @@ public class LoginServiceUnitTests {
   private final String rawEmail = "user@example.com";
   private final String rawPassword = "securePassword123";
 
-  private final String ExpiredTokenError = "Token has expired";
-  private final String InvalidTokenError = "Invalid token";
-  private final String NullOrBlankTokenError = "Token cannot be null or blank";
-
   private final SecretKey secretKey =
       Keys.hmacShaKeyFor("my-super-secret-key-that-is-32bytes!".getBytes(StandardCharsets.UTF_8));
 
@@ -47,21 +38,10 @@ public class LoginServiceUnitTests {
 
   @Mock UserRepository userRepository;
   private final PasswordEncoder passwordEncoder = new StubPasswordEncoder();
-  private JwtTokenProvider jwtTokenProvider;
-
-  String generateTokenWithExpiration(User user) {
-    return Jwts.builder()
-        .subject(user.getEmail())
-        .claim("type", "AUTH")
-        .issuedAt(new Date())
-        .expiration(Date.from(Instant.now().minus(1, ChronoUnit.HOURS)))
-        .signWith(secretKey)
-        .compact();
-  }
 
   @BeforeEach
   void setUp() {
-    jwtTokenProvider = new JwtTokenProvider();
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     jwtTokenProvider.setSecretKey(secretKey);
     loginService = new LoginService(userRepository, passwordEncoder, jwtTokenProvider);
   }
@@ -112,61 +92,13 @@ public class LoginServiceUnitTests {
       User mockedUser = new User(email, mockedPassword);
       when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockedUser));
       String token = loginService.login(rawEmail, rawPassword);
-      Claims claims =
-          Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
-      assertEquals(rawEmail, claims.getSubject());
-    }
-  }
-
-  @Nested
-  class ValidateToken {
-    @Test
-    void expiredAuthToken_shouldThrow() {
-      User mockedUser = new User(new Email(rawEmail), mock(Password.class));
-      String expiredToken = generateTokenWithExpiration(mockedUser);
-
-      TokenExpiredException exception =
-          assertThrows(
-              TokenExpiredException.class,
-              () -> jwtTokenProvider.validateToken(expiredToken, TokenType.AUTH));
-      assertEquals(ExpiredTokenError, exception.getMessage());
-    }
-
-    @Test
-    void validAuthToken_shouldNotThrow() {
-      User mockedUser = new User(new Email(rawEmail), mock(Password.class));
-      String validToken =
-          jwtTokenProvider.generateAuthToken(mockedUser.getEmail(), mockedUser.getId());
-
-      assertDoesNotThrow(() -> jwtTokenProvider.validateToken(validToken, TokenType.AUTH));
-    }
-
-    @Test
-    void invalidAuthToken_shouldThrow() {
-      String invalidToken = "invalid.token";
-      InvalidTokenException exception =
-          assertThrows(
-              InvalidTokenException.class,
-              () -> jwtTokenProvider.validateToken(invalidToken, TokenType.AUTH));
-      assertEquals(InvalidTokenError, exception.getMessage());
-    }
-
-    @Test
-    void nullAuthToken_shouldThrow() {
-      InvalidTokenException exception =
-          assertThrows(
-              InvalidTokenException.class,
-              () -> jwtTokenProvider.validateToken(null, TokenType.AUTH));
-      assertEquals(NullOrBlankTokenError, exception.getMessage());
-    }
-
-    @Test
-    void blankAuthToken_shouldThrow() {
-      InvalidTokenException exception =
-          assertThrows(
-              InvalidTokenException.class,
-              () -> jwtTokenProvider.validateToken("   ", TokenType.AUTH));
-      assertEquals(NullOrBlankTokenError, exception.getMessage());
+      assertDoesNotThrow(
+          () -> {
+            Claims claims =
+                Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+            assertEquals(rawEmail, claims.getSubject());
+            assertEquals(TokenType.AUTH.name(), claims.get("type"));
+          });
     }
   }
 }

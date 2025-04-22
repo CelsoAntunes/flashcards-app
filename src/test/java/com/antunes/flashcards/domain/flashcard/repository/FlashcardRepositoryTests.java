@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
-import com.antunes.flashcards.domain.user.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordValidator;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
-import com.antunes.flashcards.domain.user.validation.PasswordValidator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

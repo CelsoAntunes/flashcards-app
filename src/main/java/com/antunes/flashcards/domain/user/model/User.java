@@ -10,9 +10,9 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Embedded private final Email email;
+  @Embedded private Email email;
 
-  @Embedded private final Password password;
+  @Embedded private Password password;
 
   protected User() {
     this.email = null;
@@ -47,5 +47,13 @@ public class User {
 
   public String getHashedPassword() {
     return password.getHashedPassword();
+  }
+
+  public static User withUpdatedPassword(User original, Password newPasswordHash) {
+    User updated = new User();
+    updated.id = original.id;
+    updated.email = original.email;
+    updated.password = newPasswordHash;
+    return updated;
   }
 }

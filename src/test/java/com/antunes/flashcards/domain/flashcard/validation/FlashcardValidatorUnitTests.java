@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import com.antunes.flashcards.domain.flascard.validation.FlashcardValidator;
-import com.antunes.flashcards.domain.user.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordFactory;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.StubPasswordEncoder;

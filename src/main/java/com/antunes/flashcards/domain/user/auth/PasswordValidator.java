@@ -1,4 +1,4 @@
-package com.antunes.flashcards.domain.user.validation;
+package com.antunes.flashcards.domain.user.auth;
 
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
 import org.springframework.stereotype.Component;

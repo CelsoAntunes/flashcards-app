@@ -28,6 +28,61 @@ The goal is not just to build a flashcard app, but to:
 - Learn how to design maintainable APIs
 - Explore deployment, CI/CD, and documentation practices
 
+## 📁 Project Structure
+
+Here is a breakdown of the project structure:
+
+```
+├── main
+│   ├── java/com/antunes/flashcards
+│   │   ├── controller
+│   │   ├── domain
+│   │   │   ├── flascard
+│   │   │   │   ├── exception
+│   │   │   │   ├── model
+│   │   │   │   ├── repository
+│   │   │   │   ├── service
+│   │   │   │   └── validation
+│   │   │   └── user
+│   │   │       ├── auth
+│   │   │       │   ├── login
+│   │   │       │   └── token
+│   │   │       ├── exception
+│   │   │       ├── model
+│   │   │       ├── repository
+│   │   │       ├── service
+│   │   │       └── validation
+│   │   ├── exception
+│   │   └── infrastructure
+│   │       └── config
+│   └── resources
+│       ├── static
+│       └── templates
+└── test
+    └── java/com/antunes/flashcards
+        ├── controller
+        └── domain
+            ├── flashcard
+            │   ├── repository
+            │   ├── service
+            │   └── validation
+            └── user
+                 ├── auth
+                 │   ├── login
+                 │   └── token
+                 ├── model
+                 └── service
+```
+
+## 🛠 Technologies Used
+
+- **Java 17+**
+- **Spring Boot**
+- **JUnit 5**
+- **Mockito**
+- **JWT (JSON Web Tokens)**
+- **PostgreSQL**
+
 ---
 
 Feel free to fork, follow, or contribute if you find this interesting!

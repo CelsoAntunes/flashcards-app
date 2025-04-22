@@ -1,7 +1,6 @@
-package com.antunes.flashcards.domain.user;
+package com.antunes.flashcards.domain.user.auth;
 
 import com.antunes.flashcards.domain.user.model.Password;
-import com.antunes.flashcards.domain.user.validation.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

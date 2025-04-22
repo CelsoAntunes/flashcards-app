@@ -9,7 +9,7 @@ import com.antunes.flashcards.domain.flascard.exception.FlashcardWithoutUserExce
 import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
 import com.antunes.flashcards.domain.flascard.service.FlashcardService;
-import com.antunes.flashcards.domain.user.PasswordFactory;
+import com.antunes.flashcards.domain.user.auth.PasswordFactory;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.StubPasswordEncoder;

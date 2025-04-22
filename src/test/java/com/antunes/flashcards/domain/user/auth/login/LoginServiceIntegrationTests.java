@@ -1,8 +1,10 @@
-package com.antunes.flashcards.domain.user.auth;
+package com.antunes.flashcards.domain.user.auth.login;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
+import com.antunes.flashcards.domain.user.auth.token.JwtTokenProvider;
+import com.antunes.flashcards.domain.user.auth.token.TokenType;
 import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
 import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
@@ -10,8 +12,6 @@ import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
 import com.antunes.flashcards.domain.user.service.UserService;
-import com.antunes.flashcards.infrastructure.security.JwtTokenProvider;
-import com.antunes.flashcards.infrastructure.security.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import java.time.Instant;
@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 @ActiveProfiles("test")
-public class AuthenticationIntegrationTests {
+public class LoginServiceIntegrationTests {
   @Autowired private LoginService loginService;
   @Autowired private JwtTokenProvider jwtTokenProvider;
   @Autowired private UserService userService;

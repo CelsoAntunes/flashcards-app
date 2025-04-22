@@ -1,8 +1,10 @@
-package com.antunes.flashcards.domain.user.auth;
+package com.antunes.flashcards.domain.user.auth.login;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.antunes.flashcards.domain.user.auth.token.JwtTokenProvider;
+import com.antunes.flashcards.domain.user.auth.token.TokenType;
 import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
 import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
@@ -12,8 +14,6 @@ import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.StubPasswordEncoder;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
-import com.antunes.flashcards.infrastructure.security.JwtTokenProvider;
-import com.antunes.flashcards.infrastructure.security.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -32,7 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthenticationUnitTests {
+public class LoginServiceUnitTests {
   private final String rawEmail = "user@example.com";
   private final String rawPassword = "securePassword123";
 

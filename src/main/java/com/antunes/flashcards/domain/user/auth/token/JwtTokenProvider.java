@@ -1,4 +1,4 @@
-package com.antunes.flashcards.infrastructure.security;
+package com.antunes.flashcards.domain.user.auth.token;
 
 import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
 import com.antunes.flashcards.domain.user.exception.TokenExpiredException;

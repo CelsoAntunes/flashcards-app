@@ -1,11 +1,11 @@
-package com.antunes.flashcards.domain.user.auth;
+package com.antunes.flashcards.domain.user.auth.login;
 
+import com.antunes.flashcards.domain.user.auth.token.JwtTokenProvider;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
 import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
-import com.antunes.flashcards.infrastructure.security.JwtTokenProvider;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

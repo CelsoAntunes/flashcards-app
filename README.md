@@ -32,33 +32,46 @@ The goal is not just to build a flashcard app, but to:
 
 Here is a breakdown of the project structure:
 
-```.
+```
 ├── main
 │   ├── java/com/antunes/flashcards
-│   │   ├── FlashcardsApplication.java
 │   │   ├── controller
 │   │   ├── domain
 │   │   │   ├── flascard
+│   │   │   │   ├── exception
+│   │   │   │   ├── model
+│   │   │   │   ├── repository
+│   │   │   │   ├── service
+│   │   │   │   └── validation
 │   │   │   └── user
+│   │   │       ├── auth
+│   │   │       │   ├── login
+│   │   │       │   └── token
+│   │   │       ├── exception
+│   │   │       ├── model
+│   │   │       ├── repository
+│   │   │       ├── service
+│   │   │       └── validation
 │   │   ├── exception
-│   │   │   └── GlobalExceptionHandler.java
 │   │   └── infrastructure
-│   │       ├── config
-│   │       └── security
+│   │       └── config
 │   └── resources
-│       ├── application-test.properties
-│       ├── application.properties
 │       ├── static
 │       └── templates
 └── test
     └── java/com/antunes/flashcards
-        ├── FlashcardsApplicationTests.java
-        ├── TestFlashcardsApplication.java
-        ├── TestcontainersConfiguration.java
         ├── controller
         └── domain
             ├── flashcard
+            │   ├── repository
+            │   ├── service
+            │   └── validation
             └── user
+                 ├── auth
+                 │   ├── login
+                 │   └── token
+                 ├── model
+                 └── service
 ```
 
 ## 🛠 Technologies Used

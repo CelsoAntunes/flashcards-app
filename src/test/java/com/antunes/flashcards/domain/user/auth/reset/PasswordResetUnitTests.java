@@ -7,6 +7,9 @@ import com.antunes.flashcards.domain.user.auth.PasswordFactory;
 import com.antunes.flashcards.domain.user.auth.PasswordValidator;
 import com.antunes.flashcards.domain.user.auth.token.JwtTokenProvider;
 import com.antunes.flashcards.domain.user.auth.token.TokenType;
+import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
+import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
+import com.antunes.flashcards.domain.user.exception.TokenValidationException;
 import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
@@ -16,6 +19,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,11 +42,21 @@ public class PasswordResetUnitTests {
   private final SecretKey secretKey =
       Keys.hmacShaKeyFor("my-super-secret-key-that-is-32bytes!".getBytes(StandardCharsets.UTF_8));
 
-  @Mock private PasswordValidator passwordValidator;
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private UserRepository userRepository;
-  @Mock private PasswordFactory passwordFactory;
+  private PasswordValidator passwordValidator;
+  private PasswordFactory passwordFactory;
   private JwtTokenProvider jwtTokenProvider;
+
+  public String generateExpiredResetToken(String subject) {
+    return Jwts.builder()
+        .subject(subject)
+        .claim("type", TokenType.RESET)
+        .issuedAt(new Date())
+        .expiration(Date.from(Instant.now().minus(1, ChronoUnit.HOURS)))
+        .signWith(secretKey)
+        .compact();
+  }
 
   @Captor ArgumentCaptor<User> userCaptor;
 
@@ -48,6 +64,7 @@ public class PasswordResetUnitTests {
   void setUp() {
     jwtTokenProvider = new JwtTokenProvider();
     jwtTokenProvider.setSecretKey(secretKey);
+    passwordValidator = new PasswordValidator();
     passwordFactory = new PasswordFactory(passwordValidator, passwordEncoder);
     passwordResetService =
         new PasswordResetService(userRepository, passwordFactory, jwtTokenProvider);
@@ -106,5 +123,74 @@ public class PasswordResetUnitTests {
 
     assertNotEquals(oldPassword.getHashedPassword(), savedUser.getHashedPassword());
     assertEquals("$2stub$" + newRawPassword, savedUser.getHashedPassword());
+  }
+
+  @Test
+  void invalidToken_shouldThrow() {
+    String badToken = "invalid.token.value";
+    TokenValidationException exception =
+        assertThrows(
+            TokenValidationException.class,
+            () -> {
+              passwordResetService.resetPassword(badToken, newRawPassword);
+            });
+    assertEquals("Invalid token", exception.getMessage());
+  }
+
+  @Test
+  void validTokenButUserNotFound_shouldThrow() {
+    String token = jwtTokenProvider.generateResetToken(rawEmail, 1L);
+    when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
+    UserNotFoundException exception =
+        assertThrows(
+            UserNotFoundException.class,
+            () -> {
+              passwordResetService.resetPassword(token, newRawPassword);
+            });
+    assertEquals("User not found for the provided reset token", exception.getMessage());
+  }
+
+  @Test
+  void invalidNewPassword_shouldThrow() {
+    Email email = new Email(rawEmail);
+    Password oldPassword = new Password(oldRawPassword, passwordEncoder);
+    User user = new User(email, oldPassword);
+    when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+    String token = passwordResetService.reset(rawEmail);
+
+    String invalidNewPassword = "123";
+
+    PasswordValidationException exception =
+        assertThrows(
+            PasswordValidationException.class,
+            () -> {
+              passwordResetService.resetPassword(token, invalidNewPassword);
+            });
+    assertEquals("Password must be at least 8 characters long", exception.getMessage());
+  }
+
+  @Test
+  void authToken_shouldThrow() {
+    String token = jwtTokenProvider.generateAuthToken(rawEmail, 1L);
+    TokenValidationException exception =
+        assertThrows(
+            TokenValidationException.class,
+            () -> {
+              passwordResetService.resetPassword(token, newRawPassword);
+            });
+    assertEquals("Unexpected token type", exception.getMessage());
+  }
+
+  @Test
+  void expiredToken_shouldThrow() {
+    String token = generateExpiredResetToken(rawEmail);
+    TokenExpiredException exception =
+        assertThrows(
+            TokenExpiredException.class,
+            () -> {
+              passwordResetService.resetPassword(token, newRawPassword);
+            });
+    assertEquals("Token has expired", exception.getMessage());
   }
 }

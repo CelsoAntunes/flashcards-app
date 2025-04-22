@@ -89,7 +89,7 @@ public class JwtTokenProviderUnitTests {
   private static String generateExpiredToken(String subject, TokenScenario scenario) {
     return Jwts.builder()
         .subject(subject)
-        .claim("type", scenario.tokenType.name()) // 💡 respect RESET/AUTH
+        .claim("type", scenario.tokenType.name())
         .issuedAt(new Date())
         .expiration(Date.from(Instant.now().minus(1, ChronoUnit.HOURS)))
         .signWith(secretKey)

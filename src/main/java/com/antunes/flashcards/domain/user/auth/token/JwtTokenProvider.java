@@ -1,7 +1,7 @@
 package com.antunes.flashcards.domain.user.auth.token;
 
-import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
 import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
+import com.antunes.flashcards.domain.user.exception.TokenValidationException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -59,7 +59,7 @@ public class JwtTokenProvider {
 
   public void validateToken(String token, TokenType expectedType) {
     if (token == null || token.isBlank()) {
-      throw new InvalidTokenException("Token cannot be null or blank");
+      throw new TokenValidationException("Token cannot be null or blank");
     }
     try {
       Jws<Claims> claimsJws = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
@@ -71,12 +71,12 @@ public class JwtTokenProvider {
 
       String type = claimsJws.getPayload().get("type", String.class);
       if (!expectedType.name().equals(type)) {
-        throw new InvalidTokenException("Unexpected token type");
+        throw new TokenValidationException("Unexpected token type");
       }
     } catch (ExpiredJwtException e) {
       throw new TokenExpiredException("Token has expired");
     } catch (JwtException e) {
-      throw new InvalidTokenException("Invalid token");
+      throw new TokenValidationException("Invalid token");
     }
   }
 

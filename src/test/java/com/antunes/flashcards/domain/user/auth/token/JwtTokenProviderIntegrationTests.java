@@ -3,8 +3,8 @@ package com.antunes.flashcards.domain.user.auth.token;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
-import com.antunes.flashcards.domain.user.exception.InvalidTokenException;
 import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
+import com.antunes.flashcards.domain.user.exception.TokenValidationException;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
 import com.antunes.flashcards.domain.user.service.UserService;
@@ -89,19 +89,19 @@ public class JwtTokenProviderIntegrationTests {
                         scenario.name() + " - Invalid Token",
                         scenario,
                         "invalid.token",
-                        InvalidTokenException.class,
+                        TokenValidationException.class,
                         InvalidTokenError),
                     new TokenValidationCase(
                         scenario.name() + " - Null Token",
                         scenario,
                         null,
-                        InvalidTokenException.class,
+                        TokenValidationException.class,
                         NullOrBlankTokenError),
                     new TokenValidationCase(
                         scenario.name() + " - Blank Token",
                         scenario,
                         "   ",
-                        InvalidTokenException.class,
+                        TokenValidationException.class,
                         NullOrBlankTokenError),
                     new TokenValidationCase(
                         scenario.name() + " - Expired Token",

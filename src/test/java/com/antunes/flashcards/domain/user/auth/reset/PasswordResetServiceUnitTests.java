@@ -5,12 +5,11 @@ import static org.mockito.Mockito.*;
 
 import com.antunes.flashcards.domain.user.auth.PasswordFactory;
 import com.antunes.flashcards.domain.user.auth.PasswordValidator;
+import com.antunes.flashcards.domain.user.auth.model.PasswordResetToken;
+import com.antunes.flashcards.domain.user.auth.repository.PasswordResetTokenRepository;
 import com.antunes.flashcards.domain.user.auth.token.JwtTokenProvider;
 import com.antunes.flashcards.domain.user.auth.token.TokenType;
-import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
-import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
-import com.antunes.flashcards.domain.user.exception.TokenValidationException;
-import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
+import com.antunes.flashcards.domain.user.exception.*;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;
 import com.antunes.flashcards.domain.user.model.User;
@@ -18,6 +17,7 @@ import com.antunes.flashcards.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.persistence.EntityManager;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -32,10 +32,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class PasswordResetUnitTests {
+public class PasswordResetServiceUnitTests {
   private final String rawEmail = "user@example.com";
+  private final String randomEmail = "random@example.com";
   private final String oldRawPassword = "oldPassword123";
   private final String newRawPassword = "newPassword123";
   private PasswordResetService passwordResetService;
@@ -44,6 +46,7 @@ public class PasswordResetUnitTests {
 
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private UserRepository userRepository;
+  @Mock private PasswordResetTokenRepository passwordResetTokenRepository;
   private PasswordValidator passwordValidator;
   private PasswordFactory passwordFactory;
   private JwtTokenProvider jwtTokenProvider;
@@ -67,7 +70,8 @@ public class PasswordResetUnitTests {
     passwordValidator = new PasswordValidator();
     passwordFactory = new PasswordFactory(passwordValidator, passwordEncoder);
     passwordResetService =
-        new PasswordResetService(userRepository, passwordFactory, jwtTokenProvider);
+        new PasswordResetService(
+            userRepository, passwordFactory, jwtTokenProvider, passwordResetTokenRepository);
   }
 
   @Test
@@ -113,14 +117,23 @@ public class PasswordResetUnitTests {
     when(passwordEncoder.encode(newRawPassword)).thenReturn("$2stub$" + newRawPassword);
 
     String token = passwordResetService.reset(rawEmail);
+    PasswordResetToken resetToken = mock(PasswordResetToken.class);
+    when(passwordResetTokenRepository.findByToken(token))
+        .thenReturn(Optional.ofNullable(resetToken));
+    when(resetToken.isUsable()).thenReturn(true);
+
+    EntityManager entityManager = mock(EntityManager.class);
+    when(entityManager.merge(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    ReflectionTestUtils.setField(passwordResetService, "entityManager", entityManager);
+
     assertDoesNotThrow(
         () -> {
           passwordResetService.resetPassword(token, newRawPassword);
         });
 
-    verify(userRepository).save(userCaptor.capture());
-    User savedUser = userCaptor.getValue();
+    verify(entityManager).merge(userCaptor.capture());
 
+    User savedUser = userCaptor.getValue();
     assertNotEquals(oldPassword.getHashedPassword(), savedUser.getHashedPassword());
     assertEquals("$2stub$" + newRawPassword, savedUser.getHashedPassword());
   }
@@ -128,26 +141,21 @@ public class PasswordResetUnitTests {
   @Test
   void invalidToken_shouldThrow() {
     String badToken = "invalid.token.value";
-    TokenValidationException exception =
+    ResetTokenNotFoundException exception =
         assertThrows(
-            TokenValidationException.class,
+            ResetTokenNotFoundException.class,
             () -> {
               passwordResetService.resetPassword(badToken, newRawPassword);
             });
-    assertEquals("Invalid token", exception.getMessage());
+    assertEquals("Reset token not found", exception.getMessage());
   }
 
   @Test
-  void validTokenButUserNotFound_shouldThrow() {
-    String token = jwtTokenProvider.generateResetToken(rawEmail, 1L);
+  void validTokenButNoUser_shouldThrow() {
     when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
     UserNotFoundException exception =
-        assertThrows(
-            UserNotFoundException.class,
-            () -> {
-              passwordResetService.resetPassword(token, newRawPassword);
-            });
-    assertEquals("User not found for the provided reset token", exception.getMessage());
+        assertThrows(UserNotFoundException.class, () -> passwordResetService.reset(randomEmail));
+    assertEquals("No accounts with this email", exception.getMessage());
   }
 
   @Test
@@ -158,6 +166,10 @@ public class PasswordResetUnitTests {
     when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
     String token = passwordResetService.reset(rawEmail);
+    PasswordResetToken resetToken = mock(PasswordResetToken.class);
+    when(passwordResetTokenRepository.findByToken(token))
+        .thenReturn(Optional.ofNullable(resetToken));
+    when(resetToken.isUsable()).thenReturn(true);
 
     String invalidNewPassword = "123";
 
@@ -173,24 +185,67 @@ public class PasswordResetUnitTests {
   @Test
   void authToken_shouldThrow() {
     String token = jwtTokenProvider.generateAuthToken(rawEmail, 1L);
-    TokenValidationException exception =
+    ResetTokenNotFoundException exception =
         assertThrows(
-            TokenValidationException.class,
+            ResetTokenNotFoundException.class,
             () -> {
               passwordResetService.resetPassword(token, newRawPassword);
             });
-    assertEquals("Unexpected token type", exception.getMessage());
+    assertEquals("Reset token not found", exception.getMessage());
   }
 
   @Test
   void expiredToken_shouldThrow() {
     String token = generateExpiredResetToken(rawEmail);
+    PasswordResetToken resetToken = mock(PasswordResetToken.class);
+    when(passwordResetTokenRepository.findByToken(token))
+        .thenReturn(Optional.ofNullable(resetToken));
     TokenExpiredException exception =
         assertThrows(
             TokenExpiredException.class,
             () -> {
               passwordResetService.resetPassword(token, newRawPassword);
             });
-    assertEquals("Token has expired", exception.getMessage());
+    assertEquals("Token is either expired or already used", exception.getMessage());
+  }
+
+  @Test
+  void usedToken_shouldThrow() {
+    String token = generateExpiredResetToken(rawEmail);
+    PasswordResetToken resetToken = mock(PasswordResetToken.class);
+    when(passwordResetTokenRepository.findByToken(token))
+        .thenReturn(Optional.ofNullable(resetToken));
+    when(resetToken.isUsable()).thenReturn(false);
+    TokenExpiredException exception =
+        assertThrows(
+            TokenExpiredException.class,
+            () -> {
+              passwordResetService.resetPassword(token, newRawPassword);
+            });
+    assertEquals("Token is either expired or already used", exception.getMessage());
+  }
+
+  @Test
+  void validTokenShouldBeMarkedAsUsed() {
+    Email email = new Email(rawEmail);
+    when(passwordEncoder.encode(oldRawPassword)).thenReturn("$2stub$" + oldRawPassword);
+    Password oldPassword = passwordFactory.create(oldRawPassword);
+    User user = new User(email, oldPassword);
+    when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+    when(passwordEncoder.encode(newRawPassword)).thenReturn("$2stub$" + newRawPassword);
+
+    String token = passwordResetService.reset(rawEmail);
+
+    PasswordResetToken resetToken =
+        new PasswordResetToken(user, token, Instant.now().plusSeconds(300));
+    when(passwordResetTokenRepository.findByToken(token)).thenReturn(Optional.of(resetToken));
+
+    EntityManager entityManager = mock(EntityManager.class);
+    when(entityManager.merge(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    ReflectionTestUtils.setField(passwordResetService, "entityManager", entityManager);
+
+    passwordResetService.resetPassword(token, newRawPassword);
+
+    assertTrue(resetToken.isUsed());
   }
 }

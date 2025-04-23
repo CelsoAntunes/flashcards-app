@@ -3,19 +3,21 @@ package com.antunes.flashcards.domain.user.auth.reset;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
+import com.antunes.flashcards.domain.user.auth.model.PasswordResetToken;
+import com.antunes.flashcards.domain.user.auth.repository.PasswordResetTokenRepository;
 import com.antunes.flashcards.domain.user.auth.token.JwtTokenProvider;
 import com.antunes.flashcards.domain.user.auth.token.TokenType;
-import com.antunes.flashcards.domain.user.exception.PasswordValidationException;
-import com.antunes.flashcards.domain.user.exception.TokenExpiredException;
-import com.antunes.flashcards.domain.user.exception.TokenValidationException;
-import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
+import com.antunes.flashcards.domain.user.exception.*;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
 import com.antunes.flashcards.domain.user.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,13 +32,14 @@ import org.springframework.test.context.ActiveProfiles;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 @ActiveProfiles("test")
-public class PasswordResetIntegrationTests {
+public class PasswordResetServiceIntegrationTests {
   private final String rawEmail = "user@email.com";
   private final String randomEmail = "random@example.com";
   private final String rawPassword = "securePassword123";
   private final String newRawPassword = "newPassword123";
 
   @Autowired private PasswordResetService passwordResetService;
+  @Autowired private PasswordResetTokenRepository passwordResetTokenRepository;
   @Autowired private FlashcardRepository flashcardRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private UserService userService;
@@ -44,6 +47,8 @@ public class PasswordResetIntegrationTests {
   @Autowired private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   private User user;
+
+  @PersistenceContext EntityManager entityManager;
 
   @BeforeAll
   void setUp() {
@@ -57,12 +62,17 @@ public class PasswordResetIntegrationTests {
     user = userService.findByEmail(rawEmail).get();
   }
 
+  @BeforeEach
+  void clean() {
+    passwordResetTokenRepository.deleteAll();
+  }
+
   public String generateExpiredResetToken(String subject) {
     return Jwts.builder()
         .subject(subject)
         .claim("type", TokenType.RESET)
         .issuedAt(new Date())
-        .expiration(Date.from(Instant.now().minus(1, ChronoUnit.HOURS)))
+        .expiration(Date.from(Instant.now().minus(Duration.ofMinutes(5))))
         .signWith(jwtTokenProvider.getSecretKey())
         .compact();
   }
@@ -99,10 +109,13 @@ public class PasswordResetIntegrationTests {
         });
   }
 
+  @Transactional
   @Test
   void registeredUserWithValidToken_shouldChangePassword() {
     String token = passwordResetService.reset(rawEmail);
     assertDoesNotThrow(() -> passwordResetService.resetPassword(token, newRawPassword));
+    entityManager.flush();
+    entityManager.clear();
     User savedUser = userService.findByEmail(rawEmail).get();
     assertFalse(passwordEncoder.matches(rawPassword, savedUser.getHashedPassword()));
     assertTrue(passwordEncoder.matches(newRawPassword, savedUser.getHashedPassword()));
@@ -113,25 +126,20 @@ public class PasswordResetIntegrationTests {
   @Test
   void invalidToken_shouldThrow() {
     String badToken = "invalid.token.value";
-    TokenValidationException exception =
+    ResetTokenNotFoundException exception =
         assertThrows(
-            TokenValidationException.class,
+            ResetTokenNotFoundException.class,
             () -> {
               passwordResetService.resetPassword(badToken, newRawPassword);
             });
-    assertEquals("Invalid token", exception.getMessage());
+    assertEquals("Reset token not found", exception.getMessage());
   }
 
   @Test
-  void validTokenButUserNotFound_shouldThrow() {
-    String token = jwtTokenProvider.generateResetToken(randomEmail, 1L);
+  void validTokenButNoUser_shouldThrow() {
     UserNotFoundException exception =
-        assertThrows(
-            UserNotFoundException.class,
-            () -> {
-              passwordResetService.resetPassword(token, newRawPassword);
-            });
-    assertEquals("User not found for the provided reset token", exception.getMessage());
+        assertThrows(UserNotFoundException.class, () -> passwordResetService.reset(randomEmail));
+    assertEquals("No accounts with this email", exception.getMessage());
   }
 
   @Test
@@ -150,24 +158,50 @@ public class PasswordResetIntegrationTests {
   @Test
   void authToken_shouldThrow() {
     String token = jwtTokenProvider.generateAuthToken(rawEmail, 1L);
-    TokenValidationException exception =
+    ResetTokenNotFoundException exception =
         assertThrows(
-            TokenValidationException.class,
+            ResetTokenNotFoundException.class,
             () -> {
               passwordResetService.resetPassword(token, newRawPassword);
             });
-    assertEquals("Unexpected token type", exception.getMessage());
+    assertEquals("Reset token not found", exception.getMessage());
   }
 
   @Test
   void expiredToken_shouldThrow() {
     String token = generateExpiredResetToken(rawEmail);
+    Instant expiredAt = Instant.now().minus(Duration.ofMinutes(5));
+    PasswordResetToken resetToken = new PasswordResetToken(user, token, expiredAt);
+    passwordResetTokenRepository.save(resetToken);
     TokenExpiredException exception =
         assertThrows(
             TokenExpiredException.class,
             () -> {
               passwordResetService.resetPassword(token, newRawPassword);
             });
-    assertEquals("Token has expired", exception.getMessage());
+    assertEquals("Token is either expired or already used", exception.getMessage());
+  }
+
+  @Test
+  void usedToken_shouldThrow() {
+    String token = passwordResetService.reset(rawEmail);
+    PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token).get();
+    resetToken.markAsUsed();
+    passwordResetTokenRepository.save(resetToken);
+    TokenExpiredException exception =
+        assertThrows(
+            TokenExpiredException.class,
+            () -> {
+              passwordResetService.resetPassword(token, newRawPassword);
+            });
+    assertEquals("Token is either expired or already used", exception.getMessage());
+  }
+
+  @Test
+  void validTokenShouldBeMarkedAsUsed() {
+    String token = passwordResetService.reset(rawEmail);
+    passwordResetService.resetPassword(token, newRawPassword);
+    PasswordResetToken tokenEntity = passwordResetTokenRepository.findByToken(token).get();
+    assertTrue(tokenEntity.isUsed());
   }
 }

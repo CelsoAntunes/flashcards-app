@@ -6,6 +6,8 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,9 @@ public class JwtTokenProvider {
   private String secret;
 
   private SecretKey secretKey;
+
+  private final Duration AUTH_TOKEN_DURATION = Duration.ofHours(1);
+  private final Duration RESET_TOKEN_DURATION = Duration.ofMinutes(15);
 
   @PostConstruct
   public void init() {
@@ -31,8 +36,8 @@ public class JwtTokenProvider {
     return this.secretKey;
   }
 
-  private Date buildExpiration(long millis) {
-    return new Date(System.currentTimeMillis() + millis);
+  private Instant buildExpiration(Duration duration) {
+    return Instant.now().plus(duration);
   }
 
   public String generateAuthToken(String subject, Long userId) {
@@ -40,8 +45,8 @@ public class JwtTokenProvider {
         .subject(subject)
         .claim("userId", userId)
         .claim("type", TokenType.AUTH.name())
-        .issuedAt(new Date())
-        .expiration(buildExpiration(3600_000))
+        .issuedAt(Date.from(Instant.now()))
+        .expiration(Date.from(buildExpiration(AUTH_TOKEN_DURATION)))
         .signWith(secretKey)
         .compact();
   }
@@ -51,8 +56,8 @@ public class JwtTokenProvider {
         .subject(subject)
         .claim("userId", userId)
         .claim("type", TokenType.RESET.name())
-        .issuedAt(new Date())
-        .expiration(buildExpiration(15 * 60 * 1000))
+        .issuedAt(Date.from(Instant.now()))
+        .expiration(Date.from(buildExpiration(RESET_TOKEN_DURATION)))
         .signWith(secretKey)
         .compact();
   }

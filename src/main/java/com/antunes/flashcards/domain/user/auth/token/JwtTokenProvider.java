@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -56,6 +57,7 @@ public class JwtTokenProvider {
         .subject(subject)
         .claim("userId", userId)
         .claim("type", TokenType.RESET.name())
+        .claim("jti", UUID.randomUUID().toString())
         .issuedAt(Date.from(Instant.now()))
         .expiration(Date.from(buildExpiration(RESET_TOKEN_DURATION)))
         .signWith(secretKey)

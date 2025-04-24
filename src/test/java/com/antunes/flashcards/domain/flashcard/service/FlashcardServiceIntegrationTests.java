@@ -7,6 +7,7 @@ import com.antunes.flashcards.domain.flascard.exception.FlashcardValidationExcep
 import com.antunes.flashcards.domain.flascard.exception.FlashcardWithoutUserException;
 import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import com.antunes.flashcards.domain.flascard.service.FlashcardService;
+import com.antunes.flashcards.domain.user.auth.repository.PasswordResetTokenRepository;
 import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
@@ -39,6 +40,7 @@ public class FlashcardServiceIntegrationTests {
   @Autowired private FlashcardService flashcardService;
   @Autowired private UserService userService;
   @Autowired private UserRepository userRepository;
+  @Autowired private PasswordResetTokenRepository passwordResetTokenRepository;
 
   private User user;
 
@@ -46,6 +48,7 @@ public class FlashcardServiceIntegrationTests {
   void setUp() {
     final String rawEmail = "user@example.com";
     final String rawPassword = "securePassword123";
+    passwordResetTokenRepository.deleteAll();
     userRepository.deleteAll();
     user = userService.register(rawEmail, rawPassword);
     validUserSupplier =

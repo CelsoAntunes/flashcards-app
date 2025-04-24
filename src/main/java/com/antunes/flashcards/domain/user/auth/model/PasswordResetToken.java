@@ -4,7 +4,13 @@ import com.antunes.flashcards.domain.user.model.User;
 import jakarta.persistence.*;
 import java.time.Instant;
 
-@Table(name = "password_reset_token", indexes = @Index(name = "idx_token", columnList = "token"))
+@Table(
+    name = "password_reset_token",
+    indexes = {
+      @Index(name = "idx_token", columnList = "token"),
+      @Index(name = "idx_expiresAt", columnList = "expiresAt"),
+      @Index(name = "idx_used", columnList = "used")
+    })
 @Entity
 public class PasswordResetToken {
   @Id

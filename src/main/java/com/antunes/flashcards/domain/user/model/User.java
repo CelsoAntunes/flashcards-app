@@ -1,6 +1,11 @@
 package com.antunes.flashcards.domain.user.model;
 
+import com.antunes.flashcards.domain.flascard.model.Flashcard;
+import com.antunes.flashcards.domain.user.auth.model.LoginAttempt;
+import com.antunes.flashcards.domain.user.auth.model.PasswordResetToken;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -13,6 +18,15 @@ public class User {
   @Embedded private Email email;
 
   @Embedded private Password password;
+
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Flashcard> flashcards = new ArrayList<>();
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<PasswordResetToken> passwordResetTokens = new ArrayList<>();
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private LoginAttempt loginAttempt;
 
   protected User() {
     this.email = null;

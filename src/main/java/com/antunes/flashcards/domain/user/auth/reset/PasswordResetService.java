@@ -74,10 +74,11 @@ public class PasswordResetService {
     Password newPasswordHashed = passwordFactory.create(newPassword);
     User updatedUser = User.withUpdatedPassword(user, newPasswordHashed);
     entityManager.merge(updatedUser);
-    entityManager.flush();
-    entityManager.clear();
 
     resetToken.markAsUsed();
     passwordResetTokenRepository.save(resetToken);
+
+    entityManager.flush();
+    entityManager.clear();
   }
 }

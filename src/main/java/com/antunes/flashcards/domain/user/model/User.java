@@ -31,10 +31,7 @@ public class User {
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private LoginAttempt loginAttempt;
 
-  protected User() {
-    this.email = null;
-    this.password = null;
-  }
+  protected User() {}
 
   public User(Email email, Password password) {
     this.email = email;

@@ -4,6 +4,7 @@ import com.antunes.flashcards.domain.deck.model.Deck;
 import com.antunes.flashcards.domain.deck.model.DeckFlashcard;
 import com.antunes.flashcards.domain.deck.repository.DeckFlashcardRepository;
 import com.antunes.flashcards.domain.deck.repository.DeckRepository;
+import com.antunes.flashcards.domain.flascard.exception.FlashcardNotFoundException;
 import com.antunes.flashcards.domain.flascard.model.Flashcard;
 import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -48,8 +49,13 @@ public class DeckService {
             .findById(deckId)
             .orElseThrow(() -> new EntityNotFoundException("Deck not found"));
 
+    Flashcard flashcard =
+        flashcardRepository
+            .findById(flashcardId)
+            .orElseThrow(() -> new FlashcardNotFoundException("Flashcard not found"));
+
     DeckFlashcard link =
-        deck.findLinkWithFlashcard(flashcardId)
+        deck.findLinkWithFlashcard(flashcard)
             .orElseThrow(() -> new EntityNotFoundException("Flashcard not linked to deck"));
 
     deck.removeFlashcardLink(link);

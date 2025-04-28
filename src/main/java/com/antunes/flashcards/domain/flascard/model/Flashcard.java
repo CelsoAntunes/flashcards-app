@@ -2,15 +2,19 @@ package com.antunes.flashcards.domain.flascard.model;
 
 import com.antunes.flashcards.domain.user.model.User;
 import jakarta.persistence.*;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
 @Entity
 public class Flashcard {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column private String question;
-  @Column private String answer;
+  @Column @Setter private String question;
+  @Column @Setter private String answer;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "owner_id")
@@ -24,27 +28,20 @@ public class Flashcard {
     this.owner = owner;
   }
 
-  public Long getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (o == null || o.getClass() != getClass()) {
+      return false;
+    }
+    Flashcard flashcard = (Flashcard) o;
+    return Objects.equals(id, flashcard.getId());
   }
 
-  public String getQuestion() {
-    return question;
-  }
-
-  public void setQuestion(String question) {
-    this.question = question;
-  }
-
-  public String getAnswer() {
-    return answer;
-  }
-
-  public void setAnswer(String answer) {
-    this.answer = answer;
-  }
-
-  public User getOwner() {
-    return owner;
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }

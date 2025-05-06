@@ -2,8 +2,8 @@ package com.antunes.flashcards.domain.deck.model;
 
 import com.antunes.flashcards.domain.deck.exception.DeckValidationException;
 import com.antunes.flashcards.domain.deck.exception.ExistingFlashcardException;
-import com.antunes.flashcards.domain.flascard.exception.FlashcardNotFoundException;
-import com.antunes.flashcards.domain.flascard.model.Flashcard;
+import com.antunes.flashcards.domain.flashcard.exception.FlashcardNotFoundException;
+import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.User;
 import jakarta.persistence.*;

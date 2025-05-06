@@ -2,7 +2,7 @@ package com.antunes.flashcards.domain.user.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
+import com.antunes.flashcards.domain.flashcard.repository.FlashcardRepository;
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
 import com.antunes.flashcards.domain.user.exception.ExistingEmailException;
 import com.antunes.flashcards.domain.user.exception.PasswordValidationException;

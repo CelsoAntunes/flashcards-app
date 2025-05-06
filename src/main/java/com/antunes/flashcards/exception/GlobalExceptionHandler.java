@@ -1,6 +1,6 @@
 package com.antunes.flashcards.exception;
 
-import com.antunes.flashcards.domain.flascard.exception.FlashcardValidationException;
+import com.antunes.flashcards.domain.flashcard.exception.FlashcardValidationException;
 import com.antunes.flashcards.domain.user.exception.EmailValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

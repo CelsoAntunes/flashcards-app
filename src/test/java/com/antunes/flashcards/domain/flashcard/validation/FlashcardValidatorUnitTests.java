@@ -5,8 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.antunes.flashcards.domain.flascard.model.Flashcard;
-import com.antunes.flashcards.domain.flascard.validation.FlashcardValidator;
+import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import com.antunes.flashcards.domain.user.auth.PasswordFactory;
 import com.antunes.flashcards.domain.user.model.Email;
 import com.antunes.flashcards.domain.user.model.Password;

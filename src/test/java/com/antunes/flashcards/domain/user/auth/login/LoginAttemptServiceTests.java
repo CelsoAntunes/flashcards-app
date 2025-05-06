@@ -2,7 +2,7 @@ package com.antunes.flashcards.domain.user.auth.login;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
+import com.antunes.flashcards.domain.flashcard.repository.FlashcardRepository;
 import com.antunes.flashcards.domain.user.auth.model.LoginAttempt;
 import com.antunes.flashcards.domain.user.auth.repository.LoginAttemptRepository;
 import com.antunes.flashcards.domain.user.auth.repository.PasswordResetTokenRepository;

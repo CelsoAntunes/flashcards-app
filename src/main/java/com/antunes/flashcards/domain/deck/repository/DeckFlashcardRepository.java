@@ -2,7 +2,7 @@ package com.antunes.flashcards.domain.deck.repository;
 
 import com.antunes.flashcards.domain.deck.model.Deck;
 import com.antunes.flashcards.domain.deck.model.DeckFlashcard;
-import com.antunes.flashcards.domain.flascard.model.Flashcard;
+import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

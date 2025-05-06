@@ -2,8 +2,7 @@ package com.antunes.flashcards.domain.flashcard.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.antunes.flashcards.domain.flascard.model.Flashcard;
-import com.antunes.flashcards.domain.flascard.repository.FlashcardRepository;
+import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import com.antunes.flashcards.domain.user.auth.PasswordFactory;
 import com.antunes.flashcards.domain.user.auth.PasswordValidator;
 import com.antunes.flashcards.domain.user.model.Email;

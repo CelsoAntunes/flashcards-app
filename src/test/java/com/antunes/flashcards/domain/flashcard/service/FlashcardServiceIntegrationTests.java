@@ -2,11 +2,10 @@ package com.antunes.flashcards.domain.flashcard.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.antunes.flashcards.domain.flascard.exception.FlashcardNotFoundException;
-import com.antunes.flashcards.domain.flascard.exception.FlashcardValidationException;
-import com.antunes.flashcards.domain.flascard.exception.FlashcardWithoutUserException;
-import com.antunes.flashcards.domain.flascard.model.Flashcard;
-import com.antunes.flashcards.domain.flascard.service.FlashcardService;
+import com.antunes.flashcards.domain.flashcard.exception.FlashcardNotFoundException;
+import com.antunes.flashcards.domain.flashcard.exception.FlashcardValidationException;
+import com.antunes.flashcards.domain.flashcard.exception.FlashcardWithoutUserException;
+import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import com.antunes.flashcards.domain.user.auth.repository.PasswordResetTokenRepository;
 import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.User;

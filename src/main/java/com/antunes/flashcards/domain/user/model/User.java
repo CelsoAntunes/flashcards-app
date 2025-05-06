@@ -1,16 +1,18 @@
 package com.antunes.flashcards.domain.user.model;
 
 import com.antunes.flashcards.domain.deck.model.Deck;
-import com.antunes.flashcards.domain.flascard.model.Flashcard;
+import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import com.antunes.flashcards.domain.user.auth.model.LoginAttempt;
 import com.antunes.flashcards.domain.user.auth.model.PasswordResetToken;
 import jakarta.persistence.*;
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
 
 @Entity
 @Table(name = "users")
 public class User {
+  @Getter
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -49,10 +51,6 @@ public class User {
   @Override
   public int hashCode() {
     return Objects.hash(id);
-  }
-
-  public Long getId() {
-    return id;
   }
 
   public String getEmail() {

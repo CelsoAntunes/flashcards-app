@@ -1,6 +1,6 @@
 package com.antunes.flashcards.domain.deck.model;
 
-import com.antunes.flashcards.domain.flascard.model.Flashcard;
+import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;

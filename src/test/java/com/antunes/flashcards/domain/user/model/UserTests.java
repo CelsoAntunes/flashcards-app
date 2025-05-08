@@ -20,7 +20,7 @@ public class UserTests {
 
     User user = new User(email, password);
 
-    assertEquals(rawEmail, user.getEmail());
+    assertEquals(rawEmail, user.getEmail().getValue());
     assertNotNull(user.getHashedPassword());
     assertNotEquals(rawPassword, user.getHashedPassword());
     assertTrue(user.getHashedPassword().startsWith("$2stub$"), "Password should be bcrypt hash");

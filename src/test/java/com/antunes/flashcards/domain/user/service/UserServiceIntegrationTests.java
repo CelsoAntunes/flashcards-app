@@ -34,7 +34,7 @@ public class UserServiceIntegrationTests {
   void createValidUser() {
     User user = userService.register(rawEmail, rawPassword);
     assertNotNull(user.getId());
-    assertEquals(rawEmail, user.getEmail());
+    assertEquals(rawEmail, user.getEmail().getValue());
     assertTrue(user.getHashedPassword().startsWith("$2"), "Password should be a bcrypt hash");
   }
 
@@ -63,7 +63,7 @@ public class UserServiceIntegrationTests {
   void emailIsNormalizedOnRegister() {
     String inputEmail = "User@Example.Com";
     User user = userService.register(inputEmail, rawPassword);
-    assertEquals("user@example.com", user.getEmail());
+    assertEquals("user@example.com", user.getEmail().getValue());
   }
 
   @Test

@@ -48,6 +48,6 @@ public class LoginService {
       throw new PasswordValidationException("Incorrect password");
     }
     loginAttemptService.onSuccessfulLogin(user);
-    return jwtTokenProvider.generateAuthToken(user.getEmail(), user.getId());
+    return jwtTokenProvider.generateAuthToken(user.getEmail().getValue(), user.getId());
   }
 }

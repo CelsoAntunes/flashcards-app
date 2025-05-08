@@ -20,6 +20,15 @@ public class Email {
     this.rawEmail = rawEmail.toLowerCase();
   }
 
+  public String getValue() {
+    return rawEmail;
+  }
+
+  public String getUsername() {
+    int atIndex = getValue().indexOf("@");
+    return getValue().substring(0, atIndex);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -31,9 +40,5 @@ public class Email {
   @Override
   public int hashCode() {
     return Objects.hash(rawEmail);
-  }
-
-  public String getValue() {
-    return rawEmail;
   }
 }

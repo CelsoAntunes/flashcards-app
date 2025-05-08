@@ -47,11 +47,12 @@ public class UserServiceUnitTests {
     User user = userService.register(rawEmail, rawPassword);
 
     assertNotNull(user.getEmail());
-    assertEquals(rawEmail, user.getEmail());
+    assertEquals(rawEmail, user.getEmail().getValue());
 
     verify(userRepository, times(1)).save(any(User.class));
     verify(passwordFactory, times(1)).create(rawPassword);
-    verify(userRepository).save(argThat(savedUser -> savedUser.getEmail().equals(rawEmail)));
+    verify(userRepository)
+        .save(argThat(savedUser -> savedUser.getEmail().getValue().equals(rawEmail)));
   }
 
   @Test

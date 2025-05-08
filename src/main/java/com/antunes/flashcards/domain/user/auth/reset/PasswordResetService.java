@@ -46,7 +46,7 @@ public class PasswordResetService {
         userRepository
             .findByEmail(email)
             .orElseThrow(() -> new UserNotFoundException("No accounts with this email"));
-    String token = jwtTokenProvider.generateResetToken(user.getEmail(), user.getId());
+    String token = jwtTokenProvider.generateResetToken(user.getEmail().getValue(), user.getId());
     PasswordResetToken resetToken =
         new PasswordResetToken(
             user, token, jwtTokenProvider.parseToken(token).getExpiration().toInstant());

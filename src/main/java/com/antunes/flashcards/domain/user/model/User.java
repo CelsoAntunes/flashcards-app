@@ -17,7 +17,9 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Embedded private Email email;
+  @Getter @Column private String username;
+
+  @Embedded @Getter private Email email;
 
   @Embedded private Password password;
 
@@ -36,6 +38,7 @@ public class User {
   protected User() {}
 
   public User(Email email, Password password) {
+    this.username = email.getUsername();
     this.email = email;
     this.password = password;
   }
@@ -53,8 +56,11 @@ public class User {
     return Objects.hash(id);
   }
 
-  public String getEmail() {
-    return email.getValue();
+  public void changeName(String newUsername) {
+    if (newUsername == null || newUsername.isBlank()) {
+      throw new IllegalArgumentException("Name cannot be null or blank");
+    }
+    this.username = newUsername.trim();
   }
 
   public String getHashedPassword() {
@@ -64,6 +70,7 @@ public class User {
   public static User withUpdatedPassword(User original, Password newPasswordHash) {
     User updated = new User();
     updated.id = original.id;
+    updated.username = original.username;
     updated.email = original.email;
     updated.password = newPasswordHash;
     return updated;

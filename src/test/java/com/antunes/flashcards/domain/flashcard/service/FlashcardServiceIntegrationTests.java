@@ -7,11 +7,9 @@ import com.antunes.flashcards.domain.flashcard.exception.FlashcardValidationExce
 import com.antunes.flashcards.domain.flashcard.exception.FlashcardWithoutUserException;
 import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import com.antunes.flashcards.domain.user.auth.repository.PasswordResetTokenRepository;
-import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
 import com.antunes.flashcards.domain.user.service.UserService;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -34,7 +32,6 @@ public class FlashcardServiceIntegrationTests {
   private static final String validationErrorNull = "Id cannot be null";
   private static final String notFoundError = "Flashcard not found";
   private static final String nullUserError = "User cannot be null";
-  private static Supplier<User> validUserSupplier;
 
   @Autowired private FlashcardService flashcardService;
   @Autowired private UserService userService;
@@ -50,73 +47,20 @@ public class FlashcardServiceIntegrationTests {
     passwordResetTokenRepository.deleteAll();
     userRepository.deleteAll();
     user = userService.register(rawEmail, rawPassword);
-    validUserSupplier =
-        () ->
-            userService
-                .findByEmail(rawEmail)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
   }
 
   private static Stream<Arguments> provideInvalidFlashcardData() {
     return Stream.of(
-        Arguments.of(
-            " ",
-            answer,
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            "",
-            answer,
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            "   ",
-            answer,
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            null,
-            answer,
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            question,
-            "",
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            question,
-            " ",
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            question,
-            "   ",
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            question,
-            null,
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(
-            "", "", validUserSupplier, FlashcardValidationException.class, validationErrorInvalid),
-        Arguments.of(
-            null,
-            null,
-            validUserSupplier,
-            FlashcardValidationException.class,
-            validationErrorInvalid),
-        Arguments.of(question, answer, null, FlashcardWithoutUserException.class, nullUserError),
-        Arguments.of(null, null, null, FlashcardValidationException.class, validationErrorInvalid));
+        Arguments.of(" ", answer, FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of("", answer, FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of("   ", answer, FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of(null, answer, FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of(question, "", FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of(question, " ", FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of(question, "   ", FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of(question, null, FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of("", "", FlashcardValidationException.class, validationErrorInvalid),
+        Arguments.of(null, null, FlashcardValidationException.class, validationErrorInvalid));
   }
 
   private static Stream<Arguments> provideInvalidDataUpdate() {
@@ -142,29 +86,35 @@ public class FlashcardServiceIntegrationTests {
   }
 
   @Nested
-  class Save {
+  class CreateFlashcard {
     @Test
-    void saveValidFlashcard() {
-      Flashcard flashcard = new Flashcard(question, answer, user);
-      Flashcard savedFlashcard = flashcardService.validateAndSave(flashcard);
-      assertFlashcardContent(savedFlashcard, question, answer, user);
+    void createFlashcardValidInput() {
+      Flashcard createdFlashcard = flashcardService.createFlashcard(question, answer, user);
+      assertFlashcardContent(createdFlashcard, question, answer, user);
     }
 
     @ParameterizedTest
     @MethodSource(
         "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
-    void saveInvalidFlashcard(
+    void createFlashcardInvalidInput(
         String question,
         String answer,
-        Supplier<User> userSupplier,
         Class<? extends RuntimeException> expectedException,
         String expectedMessage) {
-      User owner = userSupplier == null ? null : userSupplier.get();
-      Flashcard flashcard = new Flashcard(question, answer, owner);
 
       RuntimeException exception =
-          assertThrows(expectedException, () -> flashcardService.validateAndSave(flashcard));
+          assertThrows(
+              expectedException, () -> flashcardService.createFlashcard(question, answer, user));
       assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void createFlashcardNullUser() {
+      RuntimeException exception =
+          assertThrows(
+              FlashcardWithoutUserException.class,
+              () -> flashcardService.createFlashcard(question, answer, null));
+      assertEquals(nullUserError, exception.getMessage());
     }
   }
 
@@ -172,8 +122,7 @@ public class FlashcardServiceIntegrationTests {
   class FindById {
     @Test
     void findByIdValidId() {
-      Flashcard flashcard = new Flashcard(question, answer, user);
-      flashcardService.validateAndSave(flashcard);
+      Flashcard flashcard = flashcardService.createFlashcard(question, answer, user);
       Flashcard retrievedFlashcard = flashcardService.findById(flashcard.getId());
       assertFlashcardContent(retrievedFlashcard, question, answer, user);
     }
@@ -194,38 +143,12 @@ public class FlashcardServiceIntegrationTests {
   }
 
   @Nested
-  class CreateFlashcard {
-    @Test
-    void createFlashcardValidInput() {
-      Flashcard createdFlashcard = flashcardService.createFlashcard(question, answer, user);
-      assertFlashcardContent(createdFlashcard, question, answer, user);
-    }
-
-    @ParameterizedTest
-    @MethodSource(
-        "com.antunes.flashcards.domain.flashcard.service.FlashcardServiceIntegrationTests#provideInvalidFlashcardData")
-    void createFlashcardInvalidInput(
-        String question,
-        String answer,
-        Supplier<User> userSupplier,
-        Class<? extends RuntimeException> expectedException,
-        String expectedMessage) {
-      User owner = userSupplier == null ? null : userSupplier.get();
-      RuntimeException exception =
-          assertThrows(
-              expectedException, () -> flashcardService.createFlashcard(question, answer, owner));
-      assertEquals(expectedMessage, exception.getMessage());
-    }
-  }
-
-  @Nested
   class UpdateFlashcard {
     @Test
     void updateFlashcardValidInput() {
       Flashcard existingFlashcard = flashcardService.createFlashcard(question, answer, user);
       Flashcard updatedFlashcard =
           flashcardService.updateFlashcard(existingFlashcard, "new question", "new answer");
-      assertFlashcardContent(existingFlashcard, "new question", "new answer", user);
       assertFlashcardContent(updatedFlashcard, "new question", "new answer", user);
     }
 
@@ -239,7 +162,7 @@ public class FlashcardServiceIntegrationTests {
               FlashcardServiceIntegrationTests.answer,
               user);
 
-      FlashcardValidationException exception =
+      RuntimeException exception =
           assertThrows(
               FlashcardValidationException.class,
               () -> flashcardService.updateFlashcard(existingFlashcard, question, answer));
@@ -251,7 +174,6 @@ public class FlashcardServiceIntegrationTests {
       Flashcard existingFlashcard = flashcardService.createFlashcard(question, answer, user);
       Flashcard updatedFlashcard =
           flashcardService.updateFlashcard(existingFlashcard, question, answer);
-      assertFlashcardContent(existingFlashcard, question, answer, user);
       assertFlashcardContent(updatedFlashcard, question, answer, user);
     }
   }

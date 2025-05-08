@@ -2,10 +2,8 @@ package com.antunes.flashcards.domain.flashcard.service;
 
 import com.antunes.flashcards.domain.flashcard.exception.FlashcardNotFoundException;
 import com.antunes.flashcards.domain.flashcard.exception.FlashcardValidationException;
-import com.antunes.flashcards.domain.flashcard.exception.FlashcardWithoutUserException;
 import com.antunes.flashcards.domain.flashcard.model.Flashcard;
 import com.antunes.flashcards.domain.flashcard.repository.FlashcardRepository;
-import com.antunes.flashcards.domain.flashcard.validation.FlashcardValidator;
 import com.antunes.flashcards.domain.user.exception.UserNotFoundException;
 import com.antunes.flashcards.domain.user.model.User;
 import com.antunes.flashcards.domain.user.repository.UserRepository;
@@ -24,16 +22,7 @@ public class FlashcardService {
     this.userRepository = userRepository;
   }
 
-  public Flashcard validateAndSave(Flashcard flashcard) {
-    if (!FlashcardValidator.isValid(flashcard)) {
-      throw new FlashcardValidationException("Invalid flashcard");
-    }
-    if (flashcard.getOwner() == null) {
-      throw new FlashcardWithoutUserException("User cannot be null");
-    }
-    if (flashcard.getOwner().getId() == null) {
-      throw new UserNotFoundException("User not found");
-    }
+  private Flashcard ensureUserExistsAndSave(Flashcard flashcard) {
     if (!userRepository.existsById(flashcard.getOwner().getId())) {
       throw new UserNotFoundException(
           "User with Id " + flashcard.getOwner().getId() + " not found");
@@ -51,16 +40,13 @@ public class FlashcardService {
   }
 
   public Flashcard createFlashcard(String question, String answer, User user) {
-    return validateAndSave(new Flashcard(question, answer, user));
+    return ensureUserExistsAndSave(Flashcard.create(question, answer, user));
   }
 
   public Flashcard updateFlashcard(Flashcard flashcard, String question, String answer) {
-    flashcard.setQuestion(question);
-    flashcard.setAnswer(answer);
-    if (!FlashcardValidator.isValid(flashcard)) {
-      throw new FlashcardValidationException("Invalid flashcard");
-    }
-    return validateAndSave(flashcard);
+    flashcard.changeQuestion(question);
+    flashcard.changeAnswer(answer);
+    return ensureUserExistsAndSave(flashcard);
   }
 
   public void deleteFlashcardById(Long id) {

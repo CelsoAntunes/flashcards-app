@@ -76,7 +76,7 @@ public class JwtTokenProviderIntegrationTests {
     User user = userService.findByEmail(rawEmail).orElseThrow();
 
     Long userId = user.getId();
-    String email = user.getEmail();
+    String email = user.getEmail().getValue();
 
     return Stream.of(TokenScenario.values())
         .flatMap(

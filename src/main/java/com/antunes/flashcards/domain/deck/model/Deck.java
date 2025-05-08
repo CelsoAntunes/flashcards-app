@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
 
@@ -66,6 +67,10 @@ public class Deck {
 
   public Optional<DeckFlashcard> findLinkWithFlashcard(Flashcard flashcard) {
     return streamFlashcardLinksMatching(flashcard).findFirst();
+  }
+
+  public List<Flashcard> getFlashcards() {
+    return flashcardLinks.stream().map(DeckFlashcard::getFlashcard).collect(Collectors.toList());
   }
 
   public boolean hasFlashcard(Flashcard flashcard) {

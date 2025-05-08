@@ -46,7 +46,7 @@ public class JwtTokenProviderUnitTests {
     String rawEmail = "user@example.com";
     User user = new User(new Email(rawEmail), mock(Password.class));
     Long userId = user.getId();
-    String email = user.getEmail();
+    String email = user.getEmail().getValue();
     JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
     jwtTokenProvider.setSecretKey(secretKey);
 
